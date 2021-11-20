@@ -1,3 +1,6 @@
+# adding a comment to test the commits
+# Test #2 for committing
+
 class PoolTeam:
     def __init__(self, teamID=0, teamName="", username="", player1=0, player2=0, player3=0,
                  player4=0, player5=0, player6=0, player7=0, player8=0, player9=0, player10=0,
