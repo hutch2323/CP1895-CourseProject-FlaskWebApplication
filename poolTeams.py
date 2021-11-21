@@ -5,7 +5,7 @@ class PoolTeam:
     def __init__(self, teamID=0, teamName="", username="", player1=0, player2=0, player3=0,
                  player4=0, player5=0, player6=0, player7=0, player8=0, player9=0, player10=0,
                  player11=0, player12=0, player13=0, player14=0, player15=0, player16=0, player17=0,
-                 player18=0, player19=0, player20=0, player21=0):
+                 player18=0, player19=0, player20=0, player21=0, teamLogo=""):
 
         self.__teamID = teamID
         self.__teamName = teamName
@@ -31,6 +31,7 @@ class PoolTeam:
         self.__player19 = player19
         self.__player20 = player20
         self.__player21 = player21
+        self.__teamLogo = teamLogo
 
     @property
     def teamID(self):
@@ -223,3 +224,11 @@ class PoolTeam:
     @player21.setter
     def player21(self, player21):
         self.__player21 = player21
+
+    @property
+    def teamLogo(self):
+        return self.__teamLogo
+
+    @teamLogo.setter
+    def player21(self, teamLogo):
+        self.__teamLogo = teamLogo

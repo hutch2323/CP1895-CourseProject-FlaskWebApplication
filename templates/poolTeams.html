@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    {% for team in teamsInPool %}
+        <h1>Team Name: {{ team[0].teamName }}</h1>
+            <table>
+                <tr><th>RND</th><th>Player</th><th>Team</th><th>Position</th></tr>
+                {% for player in team[1] %}
+                    <tr><td>{{playerDictonary[player].blockID}}</td><td>{{playerDictonary[player].firstName + " " +
+                        playerDictonary[player].lastName}}</td><td>
+                        {{teams[playerDictonary[player].teamID]}}</td><td>{{playerDictonary[player].position}}</td></tr>
+                {% endfor %}
+            </table>
+    {% endfor %}
+
+    <br>
+    <a href="{{ url_for('index') }}">Home</a>
+    <a href="{{ url_for('update') }}">Update Photos</a>
+
+    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.6.0-min.js') }}"></script>
+
+</body>
+</html>

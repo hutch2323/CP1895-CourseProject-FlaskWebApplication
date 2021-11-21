@@ -2,7 +2,8 @@ import os
 import sys
 import sqlite3
 from contextlib import closing
-from nhlTeams import NHLTeam
+from dbInitialization.nhlTeams import NHLTeam
+from dbInitialization.players import Player
 
 conn = None
 DB_FILENAME = "../hockeyPool.db"
@@ -102,3 +103,23 @@ def removePlayersFromDB():
         print("Error: Database could not be read. Program closing")
         print(e)
         sys.exit()
+
+def getPlayersFromDB():
+    sql = '''SELECT *
+                FROM players'''
+    try:
+        with closing(conn.cursor()) as c:
+            c.execute(sql)
+            results = c.fetchall()
+        players = []
+        for row in results:
+            players.append(makePlayer(row))
+        return players
+    except sqlite3.OperationalError as e:
+        print("Error: Database could not be read. Program closing")
+        print(e)
+        sys.exit()
+
+def makePlayer(row):
+    return Player(playerID=row["playerID"], teamID=row["teamID"], firstName=row["firstName"], lastname=row["lastName"],
+                  position=row["position"], blockID=row["blockID"])
