@@ -6,13 +6,36 @@
 </head>
 <body>
     {% for team in teamsInPool %}
-        <h1>Team Name: {{ team[0].teamName }}</h1>
-            <table>
-                <tr><th>RND</th><th>Player</th><th>Team</th><th>Position</th></tr>
-                {% for player in team[1] %}
-                    <tr><td>{{playerDictonary[player].blockID}}</td><td>{{playerDictonary[player].firstName + " " +
-                        playerDictonary[player].lastName}}</td><td>
-                        {{teams[playerDictonary[player].teamID]}}</td><td>{{playerDictonary[player].position}}</td></tr>
+        <h1 style="line-height:75px;margin:auto;padding-left:75px"><img src="{{ url_for('static', filename='images/'+team[0].teamLogo)}}" style="width:10%;vertical-align: middle"> {{ team[0].teamName }}</h1>
+            <table style="text-align:center">
+                <tr><th>RND</th><th>Player</th><th>Team</th><th>Position</th><th>Games Played</th><th>Goals</th>
+                <th>Assists</th><th>Points</th></tr>
+                {% for teams in teamStats %}
+                    {% if teams[0] == team[0].teamID %}
+                        {% for player in teams[1] %}
+                            {% if player[4] != "G" %}
+                                <tr><td>{{player[0]}}</td><td>{{player[1] + " " + player[2]}}</td>
+                                    <td>{{player[3]}}</td><td>{{player[4]}}</td><td>{{player[5]}}</td>
+                                <td>{{player[6]}}</td><td>{{player[7]}}</td><td>{{player[8]}}</td></tr>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                {% endfor %}
+            </table>
+            <br>
+            <table style="text-align:center">
+                <tr><th>RND</th><th>Player</th><th>Team</th><th>Position</th><th>Games Played</th><th>Wins</th>
+                <th>Shutouts</th><th>Points</th></tr>
+                {% for teams in teamStats %}
+                    {% if teams[0] == team[0].teamID %}
+                        {% for player in teams[1] %}
+                            {% if player[4] == "G" %}
+                                <tr><td>{{player[0]}}</td><td>{{player[1] + " " + player[2]}}</td>
+                                    <td>{{player[3]}}</td><td>{{player[4]}}</td><td>{{player[5]}}</td>
+                                <td>{{player[9]}}</td><td>{{player[10]}}</td><td>{{player[9] + player[10]*2}}</td></tr>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
                 {% endfor %}
             </table>
     {% endfor %}

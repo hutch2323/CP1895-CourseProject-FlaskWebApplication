@@ -4,7 +4,7 @@ import os
 from flask import Flask, render_template, redirect, request, abort
 import imghdr
 from werkzeug.utils import secure_filename
-#from dbInitialization import db
+from dbInitialization import db
 from dbInitialization.players import Player
 from poolTeams import PoolTeam
 
@@ -64,11 +64,10 @@ def getPoolTeamData():
                               blockValues[19], blockValues[20], uploaded_file.filename))
             conn.commit()
 
-    return redirect("index")
+    return redirect("/poolTeams")
 
 @app.route("/poolTeams")
 def poolTeams():
-
     with closing(conn.cursor()) as c:
         query = '''Select * From poolTeams'''
         c.execute(query)
@@ -81,30 +80,50 @@ def poolTeams():
             teamsInPool.append(
                 [PoolTeam(teamID=result[0], teamName=result[1], username=result[2], teamLogo=result[24]), teamRoster])
 
-    with closing(conn.cursor()) as c:
-        query = '''Select * From players'''
-        c.execute(query)
-        results = c.fetchall()
-        playerDictonary = {}
-        for result in results:
-            player = Player(teamID=result[1], firstName=result[2], lastName=result[3], position=result[4], blockID=result[5])
-            playerDictonary[result[0]] = player
-    teams = {}
-    grabTeamAbbrevations(teams)
+    teamStats = []
+    for team in teamsInPool:
+        currentTeamStats = []
+        currentTeamStats.append(team[0].teamID)
+        playerStats = []
+        for player in team[1]:
+            sql = '''Select p.blockID, p.firstName, p.lastName, t.abbreviation, p.position, ps.gamesPlayed,
+                            ps.goals, ps.assists, ps.points, ps.wins, ps.shutouts
+                         From playerStats ps join players p
+                            on ps.playerID = p.playerID
+                         join nhlTeams t
+                            on p.teamID = t.teamID
+                         Where p.playerID = ?'''
+            try:
+                with closing(conn.cursor()) as c:
+                    c.execute(sql, (player,))
+                    result = c.fetchone()
+                playerStats.append(result)
+            except sqlite3.OperationalError as e:
+                print("Error: Database could not be read. Program closing")
+                print(e)
+        currentTeamStats.append(playerStats)
+        teamStats.append(currentTeamStats)
 
-    return render_template("poolTeams.html", teamsInPool=teamsInPool, teams=teams, playerDictonary=playerDictonary)
+    return render_template("poolTeams.html", teamsInPool=teamsInPool, teamStats=teamStats)
 
-@app.route("/photos")
-def photos():
-    with closing(conn.cursor()) as c:
-        query = '''Select  * From Images'''
-        c.execute(query)
-        results = c.fetchall()
-        images = []
-        for result in results:
-            images.append((result[1], result[2])) #index 1 is the file name
+@app.route("/teamStandings")
+def teamStandings():
+    sql = '''Select pt.teamID, pt.teamName, s.points, s.pointsYesterday, s.rank, s.rankYesterday
+                 From poolTeams pt join standings s
+                    on pt.teamID = s.teamID
+                Order by s.points DESC'''
+    try:
+        with closing(conn.cursor()) as c:
+            c.execute(sql)
+            results = c.fetchall()
+            teamStandings = []
+            for result in results:
+                teamStandings.append((result[0], result[1], result[2], result[3], result[4], result[5]))
+    except sqlite3.OperationalError as e:
+        print("Error: Database could not be read. Program closing")
+        print(e)
 
-    return render_template("photos.html", images=images)
+    return render_template("teamStandings.html", teamStandings=teamStandings)
 
 @app.route("/update")
 def update():
@@ -144,3 +163,62 @@ def grabTeamAbbrevations(teams):
         results = c.fetchall()
         for result in results:
             teams[result[0]] = result[1]
+
+@app.route("/teamStats/<teamID>")
+def teamStats(teamID):
+
+    team = None
+
+    sql = '''Select teamID from poolTeams'''
+    try:
+        with closing(conn.cursor()) as c:
+            c.execute(sql)
+            results = c.fetchall()
+            poolTeams = []
+            for result in results:
+                poolTeams.append(result[0])
+    except sqlite3.OperationalError as e:
+        print("Error: Database could not be read. Program closing")
+        print(e)
+
+    if teamID in poolTeams:
+        team = teamID
+
+    with closing(conn.cursor()) as c:
+        query = '''Select * From poolTeams
+                    Where teamID = ?'''
+        c.execute(query, (teamID,))
+        results = c.fetchall()
+        teamsInPool = []
+        for result in results:
+            teamRoster = (result[3], result[4], result[5], result[6], result[7], result[8], result[9], result[10],
+                          result[11], result[12], result[13], result[14], result[15], result[16], result[17],
+                          result[18], result[19], result[20], result[21], result[22], result[23])
+            teamsInPool.append(
+                [PoolTeam(teamID=result[0], teamName=result[1], username=result[2], teamLogo=result[24]), teamRoster])
+
+    teamStats = []
+    for team in teamsInPool:
+        currentTeamStats = []
+        currentTeamStats.append(team[0].teamID)
+        playerStats = []
+        for player in team[1]:
+            sql = '''Select p.blockID, p.firstName, p.lastName, t.abbreviation, p.position, ps.gamesPlayed,
+                            ps.goals, ps.assists, ps.points, ps.wins, ps.shutouts
+                         From playerStats ps join players p
+                            on ps.playerID = p.playerID
+                         join nhlTeams t
+                            on p.teamID = t.teamID
+                         Where p.playerID = ?'''
+            try:
+                with closing(conn.cursor()) as c:
+                    c.execute(sql, (player,))
+                    result = c.fetchone()
+                playerStats.append(result)
+            except sqlite3.OperationalError as e:
+                print("Error: Database could not be read. Program closing")
+                print(e)
+        currentTeamStats.append(playerStats)
+        teamStats.append(currentTeamStats)
+
+    return render_template("teamStats.html", teamID=teamID, team=team, teamStats=teamStats)
