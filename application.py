@@ -1,19 +1,23 @@
 import sqlite3
 from contextlib import closing
 import os
-from flask import Flask, render_template, redirect, request, abort
+from flask import Flask, render_template, redirect, request, abort, session, url_for, escape
 import imghdr
 from werkzeug.utils import secure_filename
 from dbInitialization import db
 from dbInitialization.players import Player
 from poolTeams import PoolTeam
+import addNewPoolTeam
+import db
 
 app = Flask(__name__)
+secretKey = os.urandom(12).hex()
+app.secret_key = secretKey
+app.config['SECRET_KEY'] = secretKey
 app.config["UPLOAD_PATH"] = "static/images"
 app.config["MAX_CONTENT_LENGTH"] = 1024 * 1024
 app.config["UPLOAD_EXTENSIONS"] = ['.jpg', '.png', '.jfif', '.jpeg']
 
-#conn = sqlite3.connect("images.db", check_same_thread=False)
 conn = sqlite3.connect("hockeyPool.db", check_same_thread=False)
 
 @app.route("/")
@@ -63,8 +67,9 @@ def getPoolTeamData():
                               blockValues[14], blockValues[15], blockValues[16], blockValues[17], blockValues[18],
                               blockValues[19], blockValues[20], uploaded_file.filename))
             conn.commit()
-
-    return redirect("/poolTeams")
+    db.close()
+    addNewPoolTeam.addNewTeam()
+    return redirect("/")
 
 @app.route("/poolTeams")
 def poolTeams():
@@ -103,7 +108,6 @@ def poolTeams():
                 print(e)
         currentTeamStats.append(playerStats)
         teamStats.append(currentTeamStats)
-
     return render_template("poolTeams.html", teamsInPool=teamsInPool, teamStats=teamStats)
 
 @app.route("/teamStandings")
@@ -145,6 +149,7 @@ def getFormData():
                         Values(?, ?)'''
             c.execute(query, (uploaded_file.filename, caption))
             conn.commit()
+
 
     return redirect("photos")
 
@@ -222,3 +227,14 @@ def teamStats(teamID):
         teamStats.append(currentTeamStats)
 
     return render_template("teamStats.html", teamID=teamID, team=team, teamStats=teamStats)
+
+# Route for handling the login page logic
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    error = None
+    if request.method == 'POST':
+        if request.form['username'] != 'admin' or request.form['password'] != 'admin':
+            error = 'Invalid Credentials. Please try again.'
+        else:
+            return redirect(url_for('index'))
+    return render_template('login.html', error=error)

@@ -16,16 +16,17 @@ def main():
         teamStats = db.getTeamStats(team.teamID)
 
         if len(teamStats) == 0:
-            teamStats = [team.teamID, points, 0, 0, 0]
+            teamStats = [team.teamID, points, points, 0, 0]
             db.setTeamStats(teamStats)
         else:
             teamStats[2] = teamStats[1]
             teamStats[4] = teamStats[3]
+            teamStats[1] = points
             teamStandings.append(teamStats)
 
         print(teamStats)
 
-    teamStandings.sort(key=lambda x:x[1], reverse=True)
+    teamStandings.sort(key=lambda x: x[1], reverse=True)
     print("Team Standings")
     count = 1
     for team in teamStandings:
@@ -39,6 +40,7 @@ def main():
     for team in teamStandings:
         db.setTeamStats(team)
 
+    print("Standings updated")
     db.close()
 
 if __name__ == "__main__":

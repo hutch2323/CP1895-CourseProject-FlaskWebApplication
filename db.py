@@ -7,7 +7,7 @@ from dbInitialization.players import Player
 from dbInitialization.poolTeams import PoolTeam
 
 conn = None
-DB_FILENAME = "../hockeyPool.db"
+DB_FILENAME = "hockeyPool.db"
 
 def connect():
     global conn
