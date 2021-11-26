@@ -1,4 +1,4 @@
-from dbInitialization import db
+import db
 from dbInitialization.players import Player
 from dbInitialization.nhlTeams import NHLTeam
 
@@ -10,6 +10,9 @@ def main():
     # for team in teamIDs:
     #     print(team.teamID)
     #
+    poolTeamIDs = db.getPoolTeamsByID()
+    # for poolTeams in poolTeamIDs:
+    #     print(poolTeams.teamName)
     db.close()
     # for i in range(21):
     #     print("self.__player" + str(i+1) + " = player" + str(i+1))
