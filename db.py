@@ -4,7 +4,7 @@ import sqlite3
 from contextlib import closing
 from dbInitialization.nhlTeams import NHLTeam
 from dbInitialization.players import Player
-from dbInitialization.poolTeams import PoolTeam
+from poolTeams import PoolTeam
 
 conn = None
 DB_FILENAME = "hockeyPool.db"
@@ -180,6 +180,24 @@ def getPlayerStatsToDisplay(player):
         print(e)
         sys.exit()
 
+def getPlayerStatsToDisplayWithID(playerID):
+    sql = '''Select p.blockID, p.firstName, p.lastName, t.abbreviation, p.position, ps.gamesPlayed,
+	            ps.goals, ps.assists, ps.points, ps.wins, ps.shutouts
+             From playerStats ps join players p
+	            on ps.playerID = p.playerID
+	         join nhlTeams t
+	            on p.teamID = t.teamID
+             Where p.playerID = ?'''
+    try:
+        with closing(conn.cursor()) as c:
+            c.execute(sql, (playerID,))
+            result = c.fetchone()
+        return result
+    except sqlite3.OperationalError as e:
+        print("Error: Database could not be read. Program closing")
+        print(e)
+        sys.exit()
+
 def makePlayer(row):
     return Player(playerID=row["playerID"], teamID=row["teamID"], firstName=row["firstName"], lastName=row["lastName"],
                   position=row["position"], blockID=row["blockID"])
@@ -279,11 +297,11 @@ def getPoolTeamIDs():
         with closing(conn.cursor()) as c:
             c.execute(sql)
             results = c.fetchall()
-            poolTeams = []
+            teamIDs = []
             for result in results:
-                poolTeams.append(result[0])
-
-            return poolTeams
+                teamIDs.append(result[0])
+            print(teamIDs)
+            return teamIDs
     except sqlite3.OperationalError as e:
         print("Error: Database could not be read. Program closing")
         print(e)
@@ -299,6 +317,71 @@ def hasTeamStats(teamID):
                 return True
             else:
                 return False
+    except sqlite3.OperationalError as e:
+        print("Error: Database could not be read. Program closing")
+        print(e)
+
+def getTeamAbbrevations(teams):
+    try:
+        with closing(conn.cursor()) as c:
+            query = '''Select teamID, abbreviation From nhlTeams'''
+            c.execute(query)
+            results = c.fetchall()
+            for result in results:
+                teams[result[0]] = result[1]
+    except sqlite3.OperationalError as e:
+        print("Error: Database could not be read. Program closing")
+        print(e)
+
+def getPlayerSelections():
+    try:
+        with closing(conn.cursor()) as c:
+            query = '''Select * From players'''
+            c.execute(query)
+            results = c.fetchall()
+            playerSelections = []
+            for result in results:
+                playerSelections.append(
+                    Player(playerID=result[0], teamID=result[1], firstName=result[2], lastName=result[3],
+                           position=result[4], blockID=result[5]))
+            return playerSelections
+    except sqlite3.OperationalError as e:
+        print("Error: Database could not be read. Program closing")
+        print(e)
+
+def addPoolTeam(teamName, username, blockValues, logoFileName):
+    try:
+        with closing(conn.cursor()) as c:
+            query = '''Insert into poolTeams(teamName, username, player1, player2, player3, player4, player5, player6,
+                            player7, player8, player9, player10, player11, player12, player13, player14, player15,
+                            player16, player17, player18, player19, player20, player21, teamLogo)
+                        Values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'''
+            c.execute(query, (teamName, username, blockValues[0], blockValues[1], blockValues[2], blockValues[3],
+                              blockValues[4], blockValues[5], blockValues[6], blockValues[7], blockValues[8],
+                              blockValues[9], blockValues[10], blockValues[11], blockValues[12], blockValues[13],
+                              blockValues[14], blockValues[15], blockValues[16], blockValues[17], blockValues[18],
+                              blockValues[19], blockValues[20], logoFileName))
+            conn.commit()
+    except sqlite3.OperationalError as e:
+        print("Error: Database could not be read. Program closing")
+        print(e)
+
+def getPoolTeamByID(id):
+    sql = '''Select * from poolTeams
+                where teamID = ?'''
+    try:
+        with closing(conn.cursor()) as c:
+            c.execute(sql, (id,))
+            results = c.fetchall()
+            poolTeam = None
+            for result in results:
+                teamRoster = [result[3], result[4], result[5], result[6], result[7], result[8], result[9], result[10],
+                              result[11], result[12], result[13], result[14], result[15], result[16], result[17],
+                              result[18], result[19], result[20], result[21], result[22], result[23]]
+
+                poolTeam = PoolTeam(teamID=result[0], teamName=result[1], username=result[2], teamLogo=result[24],
+                                    roster=teamRoster)
+            return poolTeam
     except sqlite3.OperationalError as e:
         print("Error: Database could not be read. Program closing")
         print(e)

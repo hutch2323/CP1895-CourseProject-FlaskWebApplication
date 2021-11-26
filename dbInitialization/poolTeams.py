@@ -47,5 +47,5 @@ class PoolTeam:
         return self.__teamLogo
 
     @teamLogo.setter
-    def player21(self, teamLogo):
+    def teamLogo(self, teamLogo):
         self.__teamLogo = teamLogo
