@@ -9,9 +9,6 @@ import addNewPoolTeam
 import db
 
 app = Flask(__name__)
-# secretKey = os.urandom(12).hex()
-# app.secret_key = secretKey
-# app.config['SECRET_KEY'] = secretKey
 app.config['DATABASE'] = "hockeyPool.db"
 app.config["UPLOAD_PATH"] = "static/images"
 app.config["MAX_CONTENT_LENGTH"] = 1024 * 1024
@@ -19,10 +16,12 @@ app.config["UPLOAD_EXTENSIONS"] = ['.jpg', '.png', '.jfif', '.jpeg']
 
 conn = sqlite3.connect("hockeyPool.db", check_same_thread=False)
 
+# home page of the application
 @app.route("/")
 def index():
     return render_template("index.html")
 
+# route that handles the display of player/team options for a user creating a new hockey pool team
 @app.route("/players")
 def players():
     db.connect()
@@ -33,6 +32,8 @@ def players():
     #db.close()
     return render_template("players.html", playerSelections=playerSelections, teams=teams)
 
+# this handles the page where a user can create a hockey pool team. It will retrieve the submitted information and add
+# it to the database
 @app.route("/players", methods = ['POST'])
 def getPoolTeamData():
     uploaded_file = request.files["teamLogo"]
@@ -54,13 +55,14 @@ def getPoolTeamData():
     addNewPoolTeam.addNewTeam()
     return redirect("/")
 
+# page that displays the team standings of all teams in the hockey pool
 @app.route("/teamStandings")
 def teamStandings():
     db.connect()
     teamStandings = db.getTeamStandings()
-
     return render_template("teamStandings.html", teamStandings=teamStandings)
 
+# function to validate the image that was uploaded when a user creates a pool team
 def validate_image(stream):
     header = stream.read(512)
     stream.seek(0)
@@ -69,18 +71,15 @@ def validate_image(stream):
         return None
     return '.' + (format if format != 'jpeg' else 'jpg')
 
+# dynamic route that will display the players on a specified team. This is used by the standings page to link each team
+# to it's roster
 @app.route("/teamStats/<teamID>")
 def teamStats(teamID):
-
     team = 4
-
     db.connect()
     poolTeamIDs = db.getPoolTeamIDs()
     if teamID in poolTeamIDs:
         team = teamID
-
-    #teamsInPool = db.getPoolTeams()
-
     playerStats = []
     selectedTeam = db.getPoolTeamByID(teamID)
     for player in selectedTeam.roster:
