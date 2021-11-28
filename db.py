@@ -5,6 +5,7 @@ from contextlib import closing
 from dbInitialization.nhlTeams import NHLTeam
 from dbInitialization.players import Player
 from poolTeams import PoolTeam
+from user import User
 
 conn = None
 DB_FILENAME = "hockeyPool.db"
@@ -382,6 +383,77 @@ def getPoolTeamByID(id):
                 poolTeam = PoolTeam(teamID=result[0], teamName=result[1], username=result[2], teamLogo=result[24],
                                     roster=teamRoster)
             return poolTeam
+    except sqlite3.OperationalError as e:
+        print("Error: Database could not be read. Program closing")
+        print(e)
+
+def addNewUser(user):
+    sql = '''INSERT INTO users (username, password, firstName, lastName, emailAddress)
+                  VALUES (?, ?, ?, ?, ?)'''
+    try:
+        with closing(conn.cursor()) as c:
+            c.execute(sql, (user.username, user.password, user.firstName, user.lastName, user.emailAddress))
+            conn.commit()
+    except sqlite3.OperationalError as e:
+        print("Error: Database could not be read. Program closing")
+        print(e)
+        sys.exit()
+
+def checkForUser(username):
+    sql = '''Select * from users
+                    where username = ?'''
+    try:
+        with closing(conn.cursor()) as c:
+            c.execute(sql, (username,))
+            results = c.fetchone()
+            if (results):
+                return True
+            else:
+                return False
+    except sqlite3.OperationalError as e:
+        print("Error: Database could not be read. Program closing")
+        print(e)
+
+def checkForEmail(email):
+    sql = '''Select * from users
+                    where emailAddress = ?'''
+    try:
+        with closing(conn.cursor()) as c:
+            c.execute(sql, (email,))
+            results = c.fetchone()
+            if (results):
+                return True
+            else:
+                return False
+    except sqlite3.OperationalError as e:
+        print("Error: Database could not be read. Program closing")
+        print(e)
+
+def verifyPassword(username, password):
+    sql = '''Select * from users
+                    where username = ? AND password = ?'''
+    try:
+        with closing(conn.cursor()) as c:
+            c.execute(sql, (username, password))
+            results = c.fetchone()
+            if (results):
+                return True
+            else:
+                return False
+    except sqlite3.OperationalError as e:
+        print("Error: Database could not be read. Program closing")
+        print(e)
+
+def getUserInfo(username):
+    sql = '''Select * from users
+                    where username = ?'''
+    try:
+        with closing(conn.cursor()) as c:
+            c.execute(sql, (username,))
+            results = c.fetchall()
+            for row in results:
+                user = User(username=row[0], password=row[1], firstName=row[2], lastName=row[3], emailAddress=row[4])
+            return user
     except sqlite3.OperationalError as e:
         print("Error: Database could not be read. Program closing")
         print(e)
