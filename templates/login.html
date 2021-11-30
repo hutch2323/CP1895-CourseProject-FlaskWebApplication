@@ -24,10 +24,8 @@
       </div>
       <br />
       <button type="submit" class="btn btn-primary">Login</button>
+      <a href="{{ url_for('signUp') }}">Sign Up</a>
       <br />
       <a href="{{ url_for('index') }}">Home</a>
-      <a href="{{ url_for('players') }}">Select Players</a>
-      <a href="{{ url_for('teamStandings') }}">View Standings</a>
-      <a href="{{ url_for('signUp') }}">Sign Up</a>
     </form>
 {% endblock %}
