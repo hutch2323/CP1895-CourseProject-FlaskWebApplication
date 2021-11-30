@@ -33,33 +33,54 @@ app.config["UPLOAD_EXTENSIONS"] = ['.jpg', '.png', '.jfif', '.jpeg']
 # home page of the application
 @app.route("/")
 def index():
-    return render_template("index.html")
+    while(True):
+        try:
+            db.connect()
+            username = None
+            teamInPool = False
+            if "username" in session:
+                username = session["username"]
+                if (db.checkForUserInPool(username)):
+                    teamInPool = True
+            return render_template("index.html", username=username, teamInPool=teamInPool)
+        except sqlite3.ProgrammingError:
+            db.close()
+    # db.close()
+
+@app.route("/login")
+def login():
+    return render_template("login.html")
 
 @app.route("/login", methods=['GET', 'POST'])
-def login():
+def loginUser():
     if request.method == 'POST':
         username = request.form.get("username")
         password = request.form.get("password")
-        db.connect()
         if db.checkForUser(username):
             user = db.getUserInfo(username)
             if check_password_hash(user.password, password):
                 session['username'] = user.username
-                return render_template("index.html", boolean=True)
+                return redirect(url_for('index'))
             else:
                 flash("Invalid password", category="error")
         else:
             flash("Invalid username or user does not exist", category="error")
 
 
-    return render_template("login.html", boolean=True)
+    return render_template("login.html")
+    # db.close()
 
 @app.route("/logout")
 def logout():
-    return "<p>Logout</p>"
+    session.pop("username", None)
+    return render_template("logout.html")
+
+@app.route("/signUp")
+def signUp():
+    return render_template("signUp.html")
 
 @app.route("/signUp", methods=['GET', 'POST'])
-def signUp():
+def getSignupData():
     if request.method == 'POST':
         username = request.form.get("username")
         email = request.form.get("email")
@@ -89,24 +110,26 @@ def signUp():
                     db.connect()
                     db.addNewUser(user)
                     flash("Account created!", category="success")
+                    return redirect(url_for("login"))
                 else:
                     flash("Email address already exists.", category="error")
             else:
                 flash("Username already exists.", category="error")
 
-
-    return render_template("signUp.html")
+    # return render_template("login")
 
 # route that handles the display of player/team options for a user creating a new hockey pool team
 @app.route("/players")
 def players():
     db.connect()
+
     playerSelections = db.getPlayersFromDB()
 
     teams = {}
     db.getTeamAbbrevations(teams)
     #db.close()
     return render_template("players.html", playerSelections=playerSelections, teams=teams)
+    # db.close()
 
 # this handles the page where a user can create a hockey pool team. It will retrieve the submitted information and add
 # it to the database
@@ -118,25 +141,30 @@ def getPoolTeamData():
     for i in range(21):
         blockValues.append(request.values["block"+str(i+1)])
     filename = secure_filename(uploaded_file.filename)
-    username = "test"
+    username = session["username"]
     if filename != "":
         file_ext = os.path.splitext(filename)[1]
         if file_ext not in app.config["UPLOAD_EXTENSIONS"]: # or file_ext != validate_image(uploaded_file.stream): --> Taken out (can't get it to work)
             abort(400)
         uploaded_file.save(os.path.join(app.config["UPLOAD_PATH"], filename))
 
-        db.connect()
         db.addPoolTeam(teamName, username, blockValues, uploaded_file.filename)
     #db.close()
     addNewPoolTeam.addNewTeam()
-    return redirect("/")
+    return redirect(url_for('teamStandings'))
+    # db.close()
 
 # page that displays the team standings of all teams in the hockey pool
 @app.route("/teamStandings")
 def teamStandings():
-    db.connect()
-    teamStandings = db.getTeamStandings()
-    return render_template("teamStandings.html", teamStandings=teamStandings)
+    while True:
+        try:
+            db.connect()
+            teamStandings = db.getTeamStandings()
+            return render_template("teamStandings.html", teamStandings=teamStandings)
+        except sqlite3.ProgrammingError:
+            db.close()
+    # db.close()
 
 # function to validate the image that was uploaded when a user creates a pool team
 def validate_image(stream):
@@ -162,6 +190,7 @@ def teamStats(teamID):
         playerStats.append(db.getPlayerStatsToDisplayWithID(player))
 
     return render_template("teamStats.html", teamID=teamID, selectedTeam=selectedTeam, playerStats=playerStats)
+    # db.close()
 
 # Route for handling the login page logic
 # @app.route('/login', methods=['GET', 'POST'])

@@ -6,10 +6,18 @@
 </head>
 <body>
     <h1>Welcome to The Hockey Pool</h1>
+    {% if username is not none %}
+        <p>Hello {{username}}</p>
+    {% endif %}
     <a href="{{ url_for('index') }}">Home</a>
-    <a href="{{ url_for('players') }}">Select Players</a>
     <a href="{{ url_for('teamStandings') }}">View Standings</a>
-    <a href="{{ url_for('login') }}">Login</a>
-
+    {% if username is none %}
+        <a href="{{ url_for('login') }}">Login/Sign Up</a>
+    {% else %}
+        {% if not teamInPool %}
+            <a href="{{ url_for('players') }}">Select Players</a>
+        {% endif %}
+        <a href="{{ url_for('logout') }}">Logout</a>
+    {% endif %}
 </body>
 </html>

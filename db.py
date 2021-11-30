@@ -457,3 +457,18 @@ def getUserInfo(username):
     except sqlite3.OperationalError as e:
         print("Error: Database could not be read. Program closing")
         print(e)
+
+def checkForUserInPool(username):
+    sql = '''Select * from poolTeams
+                        where username = ?'''
+    try:
+        with closing(conn.cursor()) as c:
+            c.execute(sql, (username,))
+            results = c.fetchone()
+            if (results):
+                return True
+            else:
+                return False
+    except sqlite3.OperationalError as e:
+        print("Error: Database could not be read. Program closing")
+        print(e)
