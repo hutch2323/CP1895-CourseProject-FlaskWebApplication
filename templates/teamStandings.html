@@ -1,10 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+{% block content %}
     <h1>Team Standings</h1>
     <table style="text-align:center">
         <tr><th>Rank</th><th>Team Name</th><th>Points</th><th>Point Difference</th><th>Rank Difference</th></tr>
@@ -13,8 +9,4 @@
                 <td>{{team[4]-team[5]}}</td></tr>
         {% endfor %}
     </table>
-    <a href="{{ url_for('index') }}">Home</a>
-    <a href="{{ url_for('players') }}">Select Players</a>
-    <a href="{{ url_for('teamStandings') }}">View Standings</a>
-</body>
-</html>
+{% endblock %}

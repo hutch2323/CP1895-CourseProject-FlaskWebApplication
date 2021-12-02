@@ -1,10 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+{% block content%}
     <h1 style="line-height:75px;margin:auto;padding-left:75px"><img src="{{ url_for('static', filename='images/'+selectedTeam.teamLogo)}}" style="width:10%;vertical-align: middle"> {{ selectedTeam.teamName }}</h1>
         <table style="text-align:center">
             <tr><th>RND</th><th>Player</th><th>Team</th><th>Position</th><th>Games Played</th><th>Goals</th>
@@ -29,9 +25,4 @@
                     {% endif %}
                 {% endfor %}
             </table>
-        <br>
-        <a href="{{ url_for('index') }}">Home</a>
-        <a href="{{ url_for('players') }}">Select Players</a>
-        <a href="{{ url_for('teamStandings') }}">View Standings</a>
-</body>
-</html>
+{% endblock %}

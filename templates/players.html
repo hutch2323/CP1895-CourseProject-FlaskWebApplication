@@ -1,28 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-    <style>
-        body {
-            text-align: center;
-        }
-        .tableRows{
-            position: relative;
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            margin: 0 -1em;
-        }
-        .block{
-            margin: auto;
-            padding: 1em;
-            width: 20%;
-            margin: 0 1em;
-        }
-    </style>
-</head>
-<body>
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+{% block content%}
     <h1>Player Selection</h1>
 
     <form method="POST" action="" enctype="multipart/form-data", style="width:50%;margin:auto">
@@ -53,13 +31,6 @@
             </div>
         {% endfor %}
     </form>
-
-    <br>
-    <a href="{{ url_for('index') }}">Home</a>
-    <a href="{{ url_for('players') }}">Select Players</a>
-    <a href="{{ url_for('teamStandings') }}">View Standings</a>
-
     <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.6.0-min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/script.js') }}"></script>
-</body>
-</html>
+{% endblock %}
