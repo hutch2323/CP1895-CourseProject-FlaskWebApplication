@@ -1,10 +1,11 @@
 class User():
-    def __init__(self, username="", password="", firstName="", lastName="", emailAddress=""):
+    def __init__(self, username="", password="", firstName="", lastName="", emailAddress="", permission=""):
         self.__username = username
         self.__password = password
         self.__firstName = firstName
         self.__lastName = lastName
         self.__emailAddress = emailAddress
+        self.__permission = permission
 
     @property
     def username(self):
@@ -45,3 +46,11 @@ class User():
     @emailAddress.setter
     def emailAddress(self, emailAddress):
         self.__emailAddress = emailAddress
+
+    @property
+    def permission(self):
+        return self.__permission
+
+    @permission.setter
+    def permission(self, permission):
+        self.__permission = permission

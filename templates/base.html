@@ -25,6 +25,9 @@
         {% if not teamInPool %}
             <a href="{{ url_for('players') }}">Select Players</a>
         {% endif %}
+        {% if permission == "admin" %}
+            <a href="{{ url_for('admin') }}">Admin</a>
+        {% endif %}
         <a href="{{ url_for('logout') }}">Logout</a>
         <a style="float: right; padding-right: 10px">User: {{ username }}</a>
     {% endif %}
@@ -83,11 +86,6 @@
       src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
       integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
       crossorigin="anonymous">
-    </script>
-
-    <script
-      type="text/javascript"
-      src="{{ url_for('static', filename='index.js') }}">
     </script>
   </body>
 </html>

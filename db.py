@@ -452,7 +452,8 @@ def getUserInfo(username):
             c.execute(sql, (username,))
             results = c.fetchall()
             for row in results:
-                user = User(username=row[0], password=row[1], firstName=row[2], lastName=row[3], emailAddress=row[4])
+                user = User(username=row[0], password=row[1], firstName=row[2], lastName=row[3], emailAddress=row[4],
+                            permission=row[5])
             return user
     except sqlite3.OperationalError as e:
         print("Error: Database could not be read. Program closing")

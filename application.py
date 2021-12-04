@@ -10,6 +10,7 @@ import addNewPoolTeam
 import db
 from flask_sqlalchemy import SQLAlchemy
 from user import User
+import json
 
 # db = SQLAlchemy
 DB_NAME = "hockeyPool.db"
@@ -33,7 +34,7 @@ app.config["UPLOAD_EXTENSIONS"] = ['.jpg', '.png', '.jfif', '.jpeg']
 # home page of the application
 @app.route("/")
 def index():
-    return render_template("index.html", username=getUserInfo(), teamInPool=userTeam())
+    return render_template("index.html", username=getUserInfo(), permission=getUserPermission(), teamInPool=userTeam())
     # db.close()
 
 def userTeam():
@@ -56,6 +57,12 @@ def getUserInfo():
         username = session["username"]
     return username
 
+def getUserPermission():
+    permission = None
+    if "permission" in session:
+        permission = session["permission"]
+    return permission
+
 @app.route("/login")
 def login():
 
@@ -70,6 +77,7 @@ def loginUser():
             user = db.getUserInfo(username)
             if check_password_hash(user.password, password):
                 session['username'] = user.username
+                session['permission'] = user.permission
                 return redirect(url_for('index'))
             else:
                 flash("Invalid password", category="error")
@@ -203,6 +211,19 @@ def teamStats(teamID):
                            username=getUserInfo(), teamInPool=userTeam())
     # db.close()
 
+@app.route("/admin")
+def admin():
+    return render_template("admin.html")
+
+@app.route("/admin/modifyTeam")
+def modifyTeam():
+    db.connect()
+    playerSelections = db.getPlayersFromDB()
+    teams = {}
+    db.getTeamAbbrevations(teams)
+
+    poolTeams = db.getPoolTeams()
+    return render_template("modifyTeam.html", playerSelections=playerSelections, teams=teams, poolTeams=poolTeams)
 # Route for handling the login page logic
 # @app.route('/login', methods=['GET', 'POST'])
 # def login():
