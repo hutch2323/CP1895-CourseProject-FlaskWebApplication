@@ -5,14 +5,28 @@ from flask import Flask, render_template, redirect, request, abort, flash, sessi
 import imghdr
 from werkzeug.utils import secure_filename
 from werkzeug.security import check_password_hash, generate_password_hash
-from poolTeams import PoolTeam
-import addNewPoolTeam
+from apscheduler.schedulers.background import BackgroundScheduler
+import updatePoolTeams
+from statsCollector import collectStats
 import db
-from flask_sqlalchemy import SQLAlchemy
 from user import User
+import random
+from pytz import utc
+from updatePoolTeams import updateTeams
+
 
 # db = SQLAlchemy
 DB_NAME = "hockeyPool.db"
+
+def updateStats():
+    number = random.randint(0, 25)
+    print(number)
+
+# cron job to run at 3AM NST (6:30 AM UTC) every morning. This will ping the NHL API to grab the player stats and
+# update standings
+cron = BackgroundScheduler(daemon=True)
+cron.add_job(collectStats, 'cron', day_of_week='mon-sun', hour=6, minute=30, timezone=utc)
+cron.start()
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "thdhshsh sshsrhrsdhs"
@@ -64,8 +78,9 @@ def getUserPermission():
 
 @app.route("/login")
 def login():
-
-    return render_template("login.html", username=getUserInfo(), teamInPool=userTeam())
+    if "username" not in session:
+        return render_template("login.html", username=getUserInfo(), permission=getUserPermission(), teamInPool=userTeam())
+    return redirect(url_for('index'))
 
 @app.route("/login", methods=['GET', 'POST'])
 def loginUser():
@@ -84,17 +99,19 @@ def loginUser():
             flash("Invalid username or user does not exist", category="error")
 
 
-    return render_template("login.html", username=getUserInfo(), teamInPool=userTeam())
+    return render_template("login.html", username=getUserInfo(), permission=getUserPermission(), teamInPool=userTeam())
     # db.close()
 
 @app.route("/logout")
 def logout():
     session.pop("username", None)
-    return render_template("logout.html", username=getUserInfo(), teamInPool=userTeam())
+    return render_template("logout.html", username=getUserInfo(), permission=getUserPermission(), teamInPool=userTeam())
 
 @app.route("/signUp")
 def signUp():
-    return render_template("signUp.html", username=getUserInfo(), teamInPool=userTeam())
+    if "username" not in session:
+        return render_template("signUp.html", username=getUserInfo(), permission=getUserPermission(), teamInPool=userTeam())
+    return redirect(url_for('index'))
 
 @app.route("/signUp", methods=['GET', 'POST'])
 def getSignupData():
@@ -145,7 +162,8 @@ def players():
     teams = {}
     db.getTeamAbbrevations(teams)
     #db.close()
-    return render_template("players.html", playerSelections=playerSelections, teams=teams)
+    return render_template("players.html", playerSelections=playerSelections, teams=teams, username=getUserInfo(),
+                           permission=getUserPermission(), teamInPool=userTeam())
     # db.close()
 
 # this handles the page where a user can create a hockey pool team. It will retrieve the submitted information and add
@@ -167,8 +185,8 @@ def getPoolTeamData():
 
         db.addPoolTeam(teamName, username, blockValues, uploaded_file.filename)
     #db.close()
-    addNewPoolTeam.addNewTeam()
-    return render_template("index.html", username=getUserInfo(), teamInPool=userTeam())
+    updatePoolTeams.caclulateStandings()
+    return redirect(url_for('index'))
     # db.close()
 
 # page that displays the team standings of all teams in the hockey pool
@@ -178,7 +196,8 @@ def teamStandings():
         try:
             db.connect()
             teamStandings = db.getTeamStandings()
-            return render_template("teamStandings.html", teamStandings=teamStandings, username=getUserInfo(), teamInPool=userTeam())
+            return render_template("teamStandings.html", teamStandings=teamStandings, username=getUserInfo(),
+                                   permission=getUserPermission(), teamInPool=userTeam())
         except sqlite3.ProgrammingError:
             db.close()
     # db.close()
@@ -206,21 +225,35 @@ def teamStats(teamID):
         playerStats.append(db.getPlayerStatsToDisplayWithID(player))
 
     return render_template("teamStats.html", teamID=teamID, selectedTeam=selectedTeam, playerStats=playerStats,
-                           username=getUserInfo(), teamInPool=userTeam())
+                           username=getUserInfo(), permission=getUserPermission(), teamInPool=userTeam())
     # db.close()
 
 @app.route("/admin")
 def admin():
-    db.connect()
-    poolTeams = db.getPoolTeams()
-    users = db.getUsers()
-    return render_template("admin.html", poolTeams=poolTeams, users=users, username=getUserInfo(), teamInPool=userTeam())
+    if "permission" in session:
+        if session["permission"] == "admin":
+            db.connect()
+            poolTeams = db.getPoolTeams()
+            users = db.getUsers()
+            return render_template("admin.html", poolTeams=poolTeams, users=users, username=getUserInfo(),
+                                   permission=getUserPermission(), teamInPool=userTeam())
+    return redirect(url_for('index'))
 
 @app.route("/modifyUser/<username>")
 def modifyUser(username):
-    db.connect()
-    user = db.getUserInfo(username)
-    return render_template("modifyUser.html", userToModify=user)
+    if ("permission" in session) and (session["permission"] == "admin"):
+        db.connect()
+        user = db.getUserInfo(username)
+        return render_template("modifyUser.html", userToModify=user, username=getUserInfo(),
+                               permission=getUserPermission(), teamInPool=userTeam())
+    elif "username" in session:
+        if session["username"] == username:
+            db.connect()
+            user = db.getUserInfo(session["username"])
+            return render_template("modifyUser.html", userToModify=user, username=getUserInfo(),
+                                   permission=getUserPermission(), teamInPool=userTeam())
+
+    return redirect(url_for('index'))
 
 @app.route("/modifyUser/<username>", methods = ['GET', 'POST'])
 def modifingUser(username):
@@ -269,12 +302,16 @@ def modifingUser(username):
 
 @app.route("/modifyTeam/<team>")
 def modifyTeam(team):
-    db.connect()
-    playerSelections = db.getPlayersFromDB()
-    teams = {}
-    db.getTeamAbbrevations(teams)
-    poolTeam = db.getPoolTeamByTeamName(team)
-    return render_template("modifyTeam.html", playerSelections=playerSelections, teams=teams, poolTeam=poolTeam)
+    if "permission" in session:
+        if session["permission"] == "admin":
+            db.connect()
+            playerSelections = db.getPlayersFromDB()
+            teams = {}
+            db.getTeamAbbrevations(teams)
+            poolTeam = db.getPoolTeamByTeamName(team)
+            return render_template("modifyTeam.html", playerSelections=playerSelections, teams=teams, poolTeam=poolTeam,
+                                   username=getUserInfo(), permission=getUserPermission(), teamInPool=userTeam())
+    return redirect(url_for('index'))
 
 @app.route("/modifyTeam/<team>", methods = ['GET', 'POST'])
 def modifingTeam(team):
@@ -303,6 +340,7 @@ def getAdminCommand():
     db.connect()
     try:
         teamNameModify = request.values["teamModify"]
+        updatePoolTeams.updateTeams()
         return redirect(url_for('modifyTeam', team=teamNameModify))
     except KeyError:
         pass
@@ -310,6 +348,7 @@ def getAdminCommand():
     try:
         teamNameDelete = request.values["teamRemoval"]
         db.deletePoolTeam(teamNameDelete)
+        updatePoolTeams.updateTeams();
         return redirect(url_for('admin'))
     except KeyError:
         pass
@@ -324,6 +363,7 @@ def getAdminCommand():
         usernameDelete = request.values["userRemoval"]
         db.deleteUser(usernameDelete)
         db.removeUserPoolTeam(usernameDelete)
+        updatePoolTeams.updateTeams();
         return redirect(url_for('admin'))
     except KeyError:
         pass
@@ -339,10 +379,10 @@ def getAdminCommand():
 #             return redirect(url_for('index'))
 #     return render_template('login.html', error=error)
 
-@app.route('/background_process')
-def background_process():
-    try:
-        team = request.args.get('teamSelection', 0, type=str)
-        return jsonify(teamName=team.teamName, username=team.userName)
-    except Exception as e:
-        return str(e)
+# @app.route('/background_process')
+# def background_process():
+#     try:
+#         team = request.args.get('teamSelection', 0, type=str)
+#         return jsonify(teamName=team.teamName, username=team.userName)
+#     except Exception as e:
+#         return str(e)

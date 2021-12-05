@@ -1,6 +1,7 @@
 import db
 import requests
-from dbInitialization.playerStats import PlayerStats
+from playerStats import PlayerStats
+from poolTeamStats import updateTeamStats
 
 SEASON_ID = 20212022
 
@@ -30,6 +31,7 @@ def collectStats():
         db.addPlayerStats(player)
 
     print("Stats added")
+    updateTeamStats()
     return
     # db.close()
 
