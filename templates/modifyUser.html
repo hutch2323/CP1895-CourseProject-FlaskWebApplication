@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+  {% block title %}Sign Up{% endblock %} {% block content %}
+    <form method="POST">
+      <h3 align="center">Modify User</h3>
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input
+          type="text"
+          class="form-control"
+          id="username"
+          name="username"
+          value="{{userToModify.username}}"
+        />
+      </div>
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input
+          type="email"
+          class="form-control"
+          id="email"
+          name="email"
+          value="{{userToModify.emailAddress}}"
+        />
+      </div>
+      <div class="form-group">
+        <label for="firstName">First Name</label>
+        <input
+          type="text"
+          class="form-control"
+          id="firstName"
+          name="firstName"
+          value="{{userToModify.firstName}}"
+        />
+      </div>
+      <div class="form-group">
+        <label for="lastName">Last Name</label>
+        <input
+          type="text"
+          class="form-control"
+          id="lastName"
+          name="lastName"
+          value="{{userToModify.lastName}}"
+        />
+      </div>
+      <div class="form-group">
+        <label for="updatePassword">Update Password</label>
+        <input
+          type="checkbox"
+          class="form-control"
+          id="updatePassword"
+          name="updatePassword"
+        />
+      </div>
+      <div id="password1Container" class="form-group">
+        <label for="password1">Password</label>
+        <input
+          type="password"
+          class="form-control"
+          id="password1"
+          name="password1"
+          value=""
+        />
+      </div>
+      <div id="password2Container" class="form-group">
+        <label for="password2">Password (Confirm)</label>
+        <input
+          type="password"
+          class="form-control"
+          id="password2"
+          name="password2"
+          value=""
+        />
+      </div>
+        <div class="form-group">
+        <label for="permission">Permission</label>
+        <input
+          type="text"
+          class="form-control"
+          id="permission"
+          name="permission"
+          placeholder="{{userToModify.permission}}"
+        />
+      </div>
+      <br />
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.6.0-min.js') }}"></script>
+		<script type=text/javascript>
+			$(function() {
+                $("#password1Container").hide();
+                $("#password2Container").hide();
+                $("#updatePassword").change( () => {
+                  if($("#updatePassword").prop("checked") == true) {
+                    console.log("checked");
+                    $("#password1Container").show();
+                    $("#password2Container").show();
+                  } else {
+                    $("#password1Container").hide();
+                    $("#password2Container").hide();
+                  }
+                });
+			});
+		</script>
+{% endblock %}

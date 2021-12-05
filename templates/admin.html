@@ -1,9 +1,62 @@
 {% extends "base.html" %}
 {% block title %}Login{% endblock %}
 {% block content%}
-<h2>Administrative Options</h2>
-<p><a href="{{ url_for('admin/modifyTeam') }}">Modify Pool Team</a></p>
-<p><a href="{{ url_for('logout') }}">Remove Team from Pool</a></p>
-<p><a href="{{ url_for('logout') }}">Modify User</a></p>
-<p><a href="{{ url_for('logout') }}">Remove User from website</a></p>
+    <h2>Administrative Options</h2>
+    <h3><a href="" id="poolTeamModifier">Modify Pool Team</a></h3>
+        <form method="POST" action="" enctype="multipart/form-data" id="modifyPoolTeams" style="display: none">
+            <label for="teamModify">Team Name:</label>
+            <select id="teamModify" name="teamModify" onclick="">
+                {% for team in poolTeams %}
+                    <option value="{{team.teamName}}">{{team.teamName}}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" id="modifyTeam" class='btn btn-default'>Modify</button>
+        </form>
+    <h3><a href="" id="poolTeamRemove">Remove Team from Pool</a></h3>
+        <form method="POST" action="" enctype="multipart/form-data" id="removePoolTeams" style="display: none">
+            <label for="teamRemoval">Team Name:</label>
+            <select id="teamRemoval" name="teamRemoval" onclick="">
+                {% for team in poolTeams %}
+                    <option value="{{team.teamName}}">{{team.teamName}}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" id="removeTeam" class='btn btn-default'>Delete</button>
+        </form>
+    <h3><a href="" id="userModifier">Modify User</a></h3>
+        <form method="POST" action="" enctype="multipart/form-data" id="modifyUsers" style="display: none">
+            <label for="userModify">Team Name:</label>
+            <select id="userModify" name="userModify" onclick="">
+                {% for user in users %}
+                    <option value="{{user.username}}">{{user.username}}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" id="modifyUser" class='btn btn-default'>Modify</button>
+        </form>
+    <h3><a href="" id="userRemover">Remove User from website</a></h3>
+        <form method="POST" action="" enctype="multipart/form-data" id="removeUsers" style="display: none">
+            <label for="userRemoval">Team Name:</label>
+            <select id="userRemoval" name="userRemoval" onclick="">
+                {% for user in users %}
+                    <option value="{{user.username}}">{{user.username}}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" id="removeUser" class='btn btn-default'>Delete</button>
+        </form>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.6.0-min.js') }}"></script>
+    <script type=text/javascript>
+        $(function() {
+          $("h3").click( evt => {
+              evt.preventDefault();
+              const h3 = evt.currentTarget;
+              if ($(h3).next().css("display") == "block") {
+                  $(h3).next().css("display", "none");
+              } else {
+                  $("h3").each( (index, h3) => {
+                    $(h3).next().css("display", "none");
+                  });
+                  $(h3).next().css("display", "block");
+              }
+          })
+        });
+    </script>
 {% endblock %}
