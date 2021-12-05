@@ -367,12 +367,73 @@ def addPoolTeam(teamName, username, blockValues, logoFileName):
         print("Error: Database could not be read. Program closing")
         print(e)
 
+def updatePoolTeam(originalTeamName, teamName, username, blockValues, logoFileName):
+    try:
+        with closing(conn.cursor()) as c:
+            sql = '''Update poolTeams
+                    SET teamName = ?, username = ?, player1 = ?, player2 = ?, player3 = ?, player4 = ?, player5 = ?,
+                        player6 = ?, player7 = ?, player8 = ?, player9 = ?, player10 = ?, player11 = ?, player12 = ?, 
+                        player13 = ?, player14 = ?, player15 = ?, player16 = ?, player17 = ?, player18 = ?, 
+                        player19 = ?, player20 = ?, player21 = ?, teamLogo = ?
+                    WHERE teamName = ?'''
+            c.execute(sql, (teamName, username, blockValues[0], blockValues[1], blockValues[2], blockValues[3],
+                              blockValues[4], blockValues[5], blockValues[6], blockValues[7], blockValues[8],
+                              blockValues[9], blockValues[10], blockValues[11], blockValues[12], blockValues[13],
+                              blockValues[14], blockValues[15], blockValues[16], blockValues[17], blockValues[18],
+                              blockValues[19], blockValues[20], logoFileName, originalTeamName))
+            conn.commit()
+    except sqlite3.OperationalError as e:
+        print("Error: Database could not be read. Program closing")
+        print(e)
+
+def deletePoolTeam(teamName):
+    try:
+        with closing(conn.cursor()) as c:
+            sql = '''Delete from poolTeams
+                    WHERE teamName = ?'''
+            c.execute(sql, (teamName,))
+            conn.commit()
+    except sqlite3.OperationalError as e:
+        print("Error: Database could not be read. Program closing")
+        print(e)
+
+def deleteUser(username):
+    try:
+        with closing(conn.cursor()) as c:
+            sql = '''Delete from users
+                    WHERE username = ?'''
+            c.execute(sql, (username,))
+            conn.commit()
+    except sqlite3.OperationalError as e:
+        print("Error: Database could not be read. Program closing")
+        print(e)
+
 def getPoolTeamByID(id):
     sql = '''Select * from poolTeams
                 where teamID = ?'''
     try:
         with closing(conn.cursor()) as c:
             c.execute(sql, (id,))
+            results = c.fetchall()
+            poolTeam = None
+            for result in results:
+                teamRoster = [result[3], result[4], result[5], result[6], result[7], result[8], result[9], result[10],
+                              result[11], result[12], result[13], result[14], result[15], result[16], result[17],
+                              result[18], result[19], result[20], result[21], result[22], result[23]]
+
+                poolTeam = PoolTeam(teamID=result[0], teamName=result[1], username=result[2], teamLogo=result[24],
+                                    roster=teamRoster)
+            return poolTeam
+    except sqlite3.OperationalError as e:
+        print("Error: Database could not be read. Program closing")
+        print(e)
+
+def getPoolTeamByTeamName(teamName):
+    sql = '''Select * from poolTeams
+                where teamName = ?'''
+    try:
+        with closing(conn.cursor()) as c:
+            c.execute(sql, (teamName,))
             results = c.fetchall()
             poolTeam = None
             for result in results:
@@ -470,6 +531,71 @@ def checkForUserInPool(username):
                 return True
             else:
                 return False
+    except sqlite3.OperationalError as e:
+        print("Error: Database could not be read. Program closing")
+        print(e)
+
+def getUsers():
+    sql = '''Select * from users'''
+    try:
+        with closing(conn.cursor()) as c:
+            c.execute(sql)
+            results = c.fetchall()
+            users = []
+            for row in results:
+                user = User(username=row[0], password=row[1], firstName=row[2], lastName=row[3], emailAddress=row[4],
+                            permission=row[5])
+                users.append(user)
+            return users
+    except sqlite3.OperationalError as e:
+        print("Error: Database could not be read. Program closing")
+        print(e)
+
+def modifyUserNoPassword(originalUserName, user):
+    sql = '''Update users
+            SET username = ?, firstName = ?, lastName = ?, emailAddress = ?, permission = ?
+            WHERE username = ?'''
+    try:
+        with closing(conn.cursor()) as c:
+            c.execute(sql, (user.username, user.firstName, user.lastName, user.emailAddress, user.permission,
+                            originalUserName))
+            conn.commit()
+    except sqlite3.OperationalError as e:
+        print("Error: Database could not be read. Program closing")
+        print(e)
+
+def modifyUser(originalUserName, user):
+    sql = '''Update users
+            SET username = ?, password = ?, firstName = ?, lastName = ?, emailAddress = ?, permission = ?
+            WHERE username = ?'''
+    try:
+        with closing(conn.cursor()) as c:
+            c.execute(sql, (user.username, user.password, user.firstName, user.lastName, user.emailAddress, user.permission,
+                            originalUserName))
+            conn.commit()
+    except sqlite3.OperationalError as e:
+        print("Error: Database could not be read. Program closing")
+        print(e)
+
+def modifyPoolTeamUser(originalUserName, user):
+    sql = '''Update poolTeams
+                SET username = ?
+                WHERE username = ?'''
+    try:
+        with closing(conn.cursor()) as c:
+            c.execute(sql, (user.username, originalUserName))
+            conn.commit()
+    except sqlite3.OperationalError as e:
+        print("Error: Database could not be read. Program closing")
+        print(e)
+
+def removeUserPoolTeam(username):
+    sql = '''Delete from poolTeams
+                WHERE username = ?'''
+    try:
+        with closing(conn.cursor()) as c:
+            c.execute(sql, (username,))
+            conn.commit()
     except sqlite3.OperationalError as e:
         print("Error: Database could not be read. Program closing")
         print(e)
