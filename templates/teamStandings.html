@@ -5,8 +5,8 @@
     <table style="text-align:center">
         <tr><th>Rank</th><th>Team Name</th><th>Points</th><th>Point Difference</th><th>Rank Difference</th></tr>
         {% for team in teamStandings %}
-            <tr><td>{{team[4]}}</td><td><a href="{{ url_for('teamStats', teamID=team[0]) }}">{{team[1]}}</a></td><td>{{team[2]}}</td><td>{{team[2]-team[3]}}</td>
-                <td>{{team[4]-team[5]}}</td></tr>
+            <tr><td>{{team[4]}}</td><td><a href="{{ url_for('teamStats', teamID=team[0]) }}">{{team[1]}}</a></td><td>
+                {{team[2]}}</td><td>{{team[2]-team[3]}}</td><td>{{team[4]-team[5]}}</td></tr>
         {% endfor %}
     </table>
 {% endblock %}

@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Login{% endblock %}
 {% block content%}
+    <div data-role="page" id="welcome" data-url="{{ url_for('admin') }}"></div>
     <h2>Administrative Options</h2>
     <h3><a href="" id="poolTeamModifier">Modify Pool Team</a></h3>
         <form method="POST" action="" enctype="multipart/form-data" id="modifyPoolTeams" style="display: none">
