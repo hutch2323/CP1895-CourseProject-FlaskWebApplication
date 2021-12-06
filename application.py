@@ -47,7 +47,8 @@ app.config["UPLOAD_EXTENSIONS"] = ['.jpg', '.png', '.jfif', '.jpeg']
 # home page of the application
 @app.route("/")
 def index():
-    return render_template("index.html", username=getUserInfo(), permission=getUserPermission(), teamInPool=userTeam())
+    return render_template("index.html", username=getUserInfo(), permission=getUserPermission(),
+                           userTeamID=getUserTeamID())
     # db.close()
 
 def userTeam():
@@ -61,6 +62,19 @@ def userTeam():
                 if (db.checkForUserInPool(username)):
                     teamInPool = True
             return teamInPool
+        except sqlite3.ProgrammingError:
+            db.close()
+
+def getUserTeamID():
+    while (True):
+        try:
+            db.connect()
+            username = None
+            teamID = None
+            if(userTeam()):
+                username = session["username"]
+                teamID = db.getUserPoolTeamID(username)
+            return teamID
         except sqlite3.ProgrammingError:
             db.close()
 
@@ -79,7 +93,8 @@ def getUserPermission():
 @app.route("/login")
 def login():
     if "username" not in session:
-        return render_template("login.html", username=getUserInfo(), permission=getUserPermission(), teamInPool=userTeam())
+        return render_template("login.html", username=getUserInfo(), permission=getUserPermission(),
+                               userTeamID=getUserTeamID())
     return redirect(url_for('index'))
 
 @app.route("/login", methods=['GET', 'POST'])
@@ -99,18 +114,21 @@ def loginUser():
             flash("Invalid username or user does not exist", category="error")
 
 
-    return render_template("login.html", username=getUserInfo(), permission=getUserPermission(), teamInPool=userTeam())
+    return render_template("login.html", username=getUserInfo(), permission=getUserPermission(),
+                           userTeamID=getUserTeamID())
     # db.close()
 
 @app.route("/logout")
 def logout():
     session.pop("username", None)
-    return render_template("logout.html", username=getUserInfo(), permission=getUserPermission(), teamInPool=userTeam())
+    return render_template("logout.html", username=getUserInfo(), permission=getUserPermission(),
+                           userTeamID=getUserTeamID())
 
 @app.route("/signUp")
 def signUp():
     if "username" not in session:
-        return render_template("signUp.html", username=getUserInfo(), permission=getUserPermission(), teamInPool=userTeam())
+        return render_template("signUp.html", username=getUserInfo(), permission=getUserPermission(),
+                               userTeamID=getUserTeamID())
     return redirect(url_for('index'))
 
 @app.route("/signUp", methods=['GET', 'POST'])
@@ -155,15 +173,20 @@ def getSignupData():
 # route that handles the display of player/team options for a user creating a new hockey pool team
 @app.route("/players")
 def players():
-    db.connect()
 
-    playerSelections = db.getPlayersFromDB()
+    if "username" in session:
+        if not userTeam():
+            db.connect()
 
-    teams = {}
-    db.getTeamAbbrevations(teams)
-    #db.close()
-    return render_template("players.html", playerSelections=playerSelections, teams=teams, username=getUserInfo(),
-                           permission=getUserPermission(), teamInPool=userTeam())
+            playerSelections = db.getPlayersFromDB()
+
+            teams = {}
+            db.getTeamAbbrevations(teams)
+            #db.close()
+            return render_template("players.html", playerSelections=playerSelections, teams=teams,
+                                   username=getUserInfo(), permission=getUserPermission(), userTeamID=getUserTeamID())
+
+    return redirect(url_for('index'))
     # db.close()
 
 # this handles the page where a user can create a hockey pool team. It will retrieve the submitted information and add
@@ -197,7 +220,7 @@ def teamStandings():
             db.connect()
             teamStandings = db.getTeamStandings()
             return render_template("teamStandings.html", teamStandings=teamStandings, username=getUserInfo(),
-                                   permission=getUserPermission(), teamInPool=userTeam())
+                                   permission=getUserPermission(), userTeamID=getUserTeamID())
         except sqlite3.ProgrammingError:
             db.close()
     # db.close()
@@ -225,7 +248,7 @@ def teamStats(teamID):
         playerStats.append(db.getPlayerStatsToDisplayWithID(player))
 
     return render_template("teamStats.html", teamID=teamID, selectedTeam=selectedTeam, playerStats=playerStats,
-                           username=getUserInfo(), permission=getUserPermission(), teamInPool=userTeam())
+                           username=getUserInfo(), permission=getUserPermission(), userTeamID=getUserTeamID())
     # db.close()
 
 @app.route("/admin")
@@ -236,7 +259,7 @@ def admin():
             poolTeams = db.getPoolTeams()
             users = db.getUsers()
             return render_template("admin.html", poolTeams=poolTeams, users=users, username=getUserInfo(),
-                                   permission=getUserPermission(), teamInPool=userTeam())
+                                   permission=getUserPermission(), userTeamID=getUserTeamID())
     return redirect(url_for('index'))
 
 @app.route("/modifyUser/<username>")
@@ -245,13 +268,13 @@ def modifyUser(username):
         db.connect()
         user = db.getUserInfo(username)
         return render_template("modifyUser.html", userToModify=user, username=getUserInfo(),
-                               permission=getUserPermission(), teamInPool=userTeam())
+                               permission=getUserPermission(), userTeamID=getUserTeamID())
     elif "username" in session:
         if session["username"] == username:
             db.connect()
             user = db.getUserInfo(session["username"])
             return render_template("modifyUser.html", userToModify=user, username=getUserInfo(),
-                                   permission=getUserPermission(), teamInPool=userTeam())
+                                   permission=getUserPermission(), userTeamID=getUserTeamID())
 
     return redirect(url_for('index'))
 
@@ -310,7 +333,7 @@ def modifyTeam(team):
             db.getTeamAbbrevations(teams)
             poolTeam = db.getPoolTeamByTeamName(team)
             return render_template("modifyTeam.html", playerSelections=playerSelections, teams=teams, poolTeam=poolTeam,
-                                   username=getUserInfo(), permission=getUserPermission(), teamInPool=userTeam())
+                                   username=getUserInfo(), permission=getUserPermission(), userTeamID=getUserTeamID())
     return redirect(url_for('index'))
 
 @app.route("/modifyTeam/<team>", methods = ['GET', 'POST'])
@@ -322,6 +345,7 @@ def modifingTeam(team):
     blockValues = []
     for i in range(21):
         blockValues.append(request.values["block" + str(i + 1)])
+
     filename = secure_filename(uploaded_file.filename)
     username = session["username"]
     if filename != "":
@@ -332,6 +356,8 @@ def modifingTeam(team):
         uploaded_file.save(os.path.join(app.config["UPLOAD_PATH"], filename))
 
         db.updatePoolTeam(originalTeamName, teamName, username, blockValues, uploaded_file.filename)
+    else:
+        db.updatePoolTeamNoImage(originalTeamName, teamName, username, blockValues)
     # db.close()
     return redirect(url_for('admin'))
 

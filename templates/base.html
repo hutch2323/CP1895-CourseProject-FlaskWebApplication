@@ -22,14 +22,20 @@
     {% if username is none %}
         <a href="{{ url_for('login') }}">Login/Sign Up</a>
     {% else %}
-        {% if not teamInPool %}
+        {% if userTeamID is none %}
             <a href="{{ url_for('players') }}">Select Players</a>
         {% endif %}
         {% if permission == "admin" %}
             <a href="{{ url_for('admin') }}">Admin</a>
         {% endif %}
         <a href="{{ url_for('logout') }}">Logout</a>
-        <a href="{{ url_for('modifyUser', username=username) }}" style="float: right; padding-right: 10px">User: {{ username }}</a>
+        <div id="userOptions" display="block" style="float: right; padding-right: 10px">
+            <a id="username" href="{{ url_for('modifyUser', username=username) }}">User: {{ username }}</a>
+            <a class="hide" style="display: none" href="{{ url_for('modifyUser', username=username) }}">Edit Profile</a>
+            {% if userTeamID is not none %}
+                <a class="hide" style="display: none" href="{{ url_for('teamStats', teamID=userTeamID) }}">View Team</a>
+            {% endif %}
+        </div>
     {% endif %}
     </ul>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -87,5 +93,15 @@
       integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
       crossorigin="anonymous">
     </script>
+
+    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.6.0-min.js') }}"></script>
+		<script type=text/javascript>
+			$(function() {
+                $("#userOptions").hover(
+                    () => $(".hide").css("display", "block"),
+                    () => $(".hide").css("display", "none")
+                );
+			});
+		</script>
   </body>
 </html>

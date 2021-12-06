@@ -14,8 +14,16 @@
 <!--        </form>-->
 
         <form id="teamSelection" method="POST" action="" enctype="multipart/form-data", style="width:50%;margin:auto">
-            <label for="teamLogo">Logo:</label>
-            <input type="file" name="teamLogo" id="teamLogo" accept=".png, .jfif, .jpg, .jpeg" value="{{poolTeam.teamLogo}}" required>
+            <div class="form-group">
+            <label for="updateImage">Update Image</label>
+                <input
+                  type="checkbox"
+                  class="form-control"
+                  id="updateImage"
+                  name="updateImage"/>
+            </div>
+            <label id="teamLogoLabel" for="teamLogo">Logo:</label>
+            <input type="file" name="teamLogo" id="teamLogo" accept=".png, .jfif, .jpg, .jpeg" value="{{poolTeam.teamLogo}}">
             <br>
             <label for="teamName">Team Name:</label>
             <input type="text" name="teamName" id="teamName" value="{{poolTeam.teamName}}" required>
@@ -47,28 +55,22 @@
             {% endfor %}
         </form>
         <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.6.0-min.js') }}"></script>
-<!--		<script type=text/javascript>-->
-<!--			$(function() {-->
-<!--			  // $('a#process_input').bind('click', function() {-->
-<!--				// $.getJSON('/background_process', {-->
-<!--				//   proglang: $('input[name="proglang"]').val(),-->
-<!--				// }, function(data) {-->
-<!--				//   $("#result").text(data.result);-->
-<!--				// });-->
-<!--				// return false;-->
-<!--			  // });-->
-<!--                $("#teamSelectorButton").click( () => {-->
-<!--                    // $.getJSON('/background_process', {-->
-<!--                    //   teamSelection: $('input[name="teamSelection"]').val(),-->
-<!--                    // }, function(data) {-->
-<!--                    //   $("#teamName").text(data.teamName + " - " + data.username);-->
-<!--                    // });-->
-<!--                    console.log(data);-->
-<!--                    $("#teamSelection").css("display", "block");-->
-<!--                    // let team = $("#teamSelector").val();-->
-<!--                })-->
-<!--			});-->
-<!--		</script>-->
+		<script type=text/javascript>
+			$(function() {
+                $("#teamLogoLabel").hide();
+                $("#teamLogo").hide();
+                $("#updateImage").change( () => {
+                  if($("#updateImage").prop("checked") == true) {
+                    console.log("checked");
+                    $("#teamLogoLabel").show();
+                    $("#teamLogo").show();
+                  } else {
+                    $("#teamLogoLabel").hide();
+                    $("#teamLogo").hide();
+                  }
+                });
+			});
+		</script>
         <script type="text/javascript" src="{{ url_for('static', filename='js/modifyTeam.js') }}"></script>
 
 {% endblock %}

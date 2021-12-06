@@ -71,16 +71,18 @@
           value=""
         />
       </div>
+      {% if permission == "admin" %}
         <div class="form-group">
-        <label for="permission">Permission</label>
-        <input
-          type="text"
-          class="form-control"
-          id="permission"
-          name="permission"
-          placeholder="{{userToModify.permission}}"
-        />
-      </div>
+          <label for="permission">Permission</label>
+          <input
+            type="text"
+            class="form-control"
+            id="permission"
+            name="permission"
+            placeholder="{{userToModify.permission}}"
+            />
+        </div>
+      {% endif %}
       <br />
       <button type="submit" class="btn btn-primary">Submit</button>
     </form>
