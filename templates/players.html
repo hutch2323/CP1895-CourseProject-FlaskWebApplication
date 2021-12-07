@@ -5,19 +5,18 @@
 
     <form method="POST" action="" enctype="multipart/form-data", style="width:50%;margin:auto">
         <label for="teamLogo">Logo:</label>
-        <input type="file" name="teamLogo" id="teamLogo" accept=".png, .jfif, .jpg, .jpeg" required>
+        <input type="file" name="teamLogo" id="teamLogo" accept=".png, .jfif, .jpg, .jpeg">
         <br>
         <label for="teamName">Team Name:</label>
-        <input type="text" name="teamName" id="teamName" required>
-        <p><input type="submit" value="Submit"></p>
-
+        <input type="text" name="teamName" id="teamName"><span>*</span>
+        <input type="submit" id="submit" value="Submit">
         {% set count = namespace(value=1) %}
         {% for i in range(7) %}
             <div class="tableRows">
                 {% for j in range(3) %}
                 <div id="block{{count.value}}" class="block">
                     <h5>Group: {{count.value}}</h5>
-                    <select name="block{{count.value}}" id="{{count.value}}" size="5", style="overflow-y:auto;padding:5px;border:0px" required>
+                    <select name="block{{count.value}}" id="{{count.value}}" size="5", style="overflow-y:auto;padding:5px;border:0px">
                     {% for player in playerSelections %}
                         {% if player.blockID == count.value %}
                             <option value="{{player.playerID}}">{{ player.firstName + " " + player.lastName +
@@ -32,5 +31,5 @@
         {% endfor %}
     </form>
     <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.6.0-min.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/script.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/createTeam.js') }}"></script>
 {% endblock %}

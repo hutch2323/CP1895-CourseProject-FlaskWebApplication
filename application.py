@@ -347,17 +347,15 @@ def modifingTeam(team):
         blockValues.append(request.values["block" + str(i + 1)])
 
     filename = secure_filename(uploaded_file.filename)
-    username = session["username"]
     if filename != "":
         file_ext = os.path.splitext(filename)[1]
-        if file_ext not in app.config[
-            "UPLOAD_EXTENSIONS"]:  # or file_ext != validate_image(uploaded_file.stream): --> Taken out (can't get it to work)
+        if file_ext not in app.config["UPLOAD_EXTENSIONS"]:  # or file_ext != validate_image(uploaded_file.stream): --> Taken out (can't get it to work)
             abort(400)
         uploaded_file.save(os.path.join(app.config["UPLOAD_PATH"], filename))
 
-        db.updatePoolTeam(originalTeamName, teamName, username, blockValues, uploaded_file.filename)
+        db.updatePoolTeam(originalTeamName, teamName, blockValues, uploaded_file.filename)
     else:
-        db.updatePoolTeamNoImage(originalTeamName, teamName, username, blockValues)
+        db.updatePoolTeamNoImage(originalTeamName, teamName, blockValues)
     # db.close()
     return redirect(url_for('admin'))
 

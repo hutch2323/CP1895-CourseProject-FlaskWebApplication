@@ -367,16 +367,16 @@ def addPoolTeam(teamName, username, blockValues, logoFileName):
         print("Error: Database could not be read. Program closing")
         print(e)
 
-def updatePoolTeam(originalTeamName, teamName, username, blockValues, logoFileName):
+def updatePoolTeam(originalTeamName, teamName, blockValues, logoFileName):
     try:
         with closing(conn.cursor()) as c:
             sql = '''Update poolTeams
-                    SET teamName = ?, username = ?, player1 = ?, player2 = ?, player3 = ?, player4 = ?, player5 = ?,
+                    SET teamName = ?, player1 = ?, player2 = ?, player3 = ?, player4 = ?, player5 = ?,
                         player6 = ?, player7 = ?, player8 = ?, player9 = ?, player10 = ?, player11 = ?, player12 = ?, 
                         player13 = ?, player14 = ?, player15 = ?, player16 = ?, player17 = ?, player18 = ?, 
                         player19 = ?, player20 = ?, player21 = ?, teamLogo = ?
                     WHERE teamName = ?'''
-            c.execute(sql, (teamName, username, blockValues[0], blockValues[1], blockValues[2], blockValues[3],
+            c.execute(sql, (teamName, blockValues[0], blockValues[1], blockValues[2], blockValues[3],
                               blockValues[4], blockValues[5], blockValues[6], blockValues[7], blockValues[8],
                               blockValues[9], blockValues[10], blockValues[11], blockValues[12], blockValues[13],
                               blockValues[14], blockValues[15], blockValues[16], blockValues[17], blockValues[18],
@@ -386,16 +386,16 @@ def updatePoolTeam(originalTeamName, teamName, username, blockValues, logoFileNa
         print("Error: Database could not be read. Program closing")
         print(e)
 
-def updatePoolTeamNoImage(originalTeamName, teamName, username, blockValues):
+def updatePoolTeamNoImage(originalTeamName, teamName, blockValues):
     try:
         with closing(conn.cursor()) as c:
             sql = '''Update poolTeams
-                    SET teamName = ?, username = ?, player1 = ?, player2 = ?, player3 = ?, player4 = ?, player5 = ?,
+                    SET teamName = ?, player1 = ?, player2 = ?, player3 = ?, player4 = ?, player5 = ?,
                         player6 = ?, player7 = ?, player8 = ?, player9 = ?, player10 = ?, player11 = ?, player12 = ?, 
                         player13 = ?, player14 = ?, player15 = ?, player16 = ?, player17 = ?, player18 = ?, 
                         player19 = ?, player20 = ?, player21 = ?
                     WHERE teamName = ?'''
-            c.execute(sql, (teamName, username, blockValues[0], blockValues[1], blockValues[2], blockValues[3],
+            c.execute(sql, (teamName, blockValues[0], blockValues[1], blockValues[2], blockValues[3],
                               blockValues[4], blockValues[5], blockValues[6], blockValues[7], blockValues[8],
                               blockValues[9], blockValues[10], blockValues[11], blockValues[12], blockValues[13],
                               blockValues[14], blockValues[15], blockValues[16], blockValues[17], blockValues[18],
