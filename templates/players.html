@@ -1,14 +1,18 @@
 {% extends "base.html" %}
-{% block title %}Login{% endblock %}
+{% block title %}Create Team{% endblock %}
 {% block content%}
     <h1>Player Selection</h1>
 
     <form method="POST" action="" enctype="multipart/form-data", style="width:50%;margin:auto">
         <label for="teamLogo">Logo:</label>
-        <input type="file" name="teamLogo" id="teamLogo" accept=".png, .jfif, .jpg, .jpeg">
+        <input type="file" name="teamLogo" id="teamLogo" accept=".png, .jfif, .jpg, .jpeg" >
         <br>
         <label for="teamName">Team Name:</label>
-        <input type="text" name="teamName" id="teamName"><span>*</span>
+        <input type="text" name="teamName" id="teamName"
+            {% if 'teamName' in form %}
+                value="{{form['teamName']}}"
+            {% endif %}
+        ><span>*</span>
         <input type="submit" id="submit" value="Submit">
         {% set count = namespace(value=1) %}
         {% for i in range(7) %}
@@ -19,8 +23,19 @@
                     <select name="block{{count.value}}" id="{{count.value}}" size="5", style="overflow-y:auto;padding:5px;border:0px">
                     {% for player in playerSelections %}
                         {% if player.blockID == count.value %}
-                            <option value="{{player.playerID}}">{{ player.firstName + " " + player.lastName +
-                                " (" + teams[player.teamID] + ")"}}</option>
+                            {% if blockValues is defined %}
+                                {% if player.playerID == blockValues[player.blockID-1]|int %}
+                                    <option value="{{player.playerID}}" selected="{{player.playerID}}">
+                                        {{ player.firstName + " " + player.lastName +
+                                        " (" + teams[player.teamID] + ")"}}</option>
+                                {% else %}
+                                    <option value="{{player.playerID}}">{{ player.firstName + " " + player.lastName +
+                                        " (" + teams[player.teamID] + ")"}}</option>
+                                {% endif %}
+                            {% else %}
+                                <option value="{{player.playerID}}">{{ player.firstName + " " + player.lastName +
+                                    " (" + teams[player.teamID] + ")"}}</option>
+                            {% endif %}
                         {% endif %}
                     {% endfor %}
                     </select>

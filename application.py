@@ -12,6 +12,7 @@ import db
 from user import User
 import random
 from pytz import utc
+from addNewPoolTeam import addNewTeam
 from updatePoolTeams import updateTeams
 
 
@@ -26,6 +27,7 @@ def updateStats():
 # update standings
 cron = BackgroundScheduler(daemon=True)
 cron.add_job(collectStats, 'cron', day_of_week='mon-sun', hour=6, minute=30, timezone=utc)
+# cron.add_job(collectStats, 'cron', day_of_week='mon-sun', hour=11, minute=49, timezone=utc)
 cron.start()
 
 app = Flask(__name__)
@@ -99,7 +101,9 @@ def login():
 
 @app.route("/login", methods=['GET', 'POST'])
 def loginUser():
+    db.connect()
     if request.method == 'POST':
+        form = request.form
         username = request.form.get("username")
         password = request.form.get("password")
         if db.checkForUser(username):
@@ -115,7 +119,7 @@ def loginUser():
 
 
     return render_template("login.html", username=getUserInfo(), permission=getUserPermission(),
-                           userTeamID=getUserTeamID())
+                           userTeamID=getUserTeamID(), form=form)
     # db.close()
 
 @app.route("/logout")
@@ -134,46 +138,31 @@ def signUp():
 @app.route("/signUp", methods=['GET', 'POST'])
 def getSignupData():
     if request.method == 'POST':
+        form = request.form
         username = request.form.get("username")
         email = request.form.get("email")
         firstName = request.form.get("firstName")
         lastName = request.form.get("lastName")
         password1 = request.form.get("password1")
-        password2 = request.form.get("password2")
-
-        if len(username) < 4:
-            flash("Username must be greater than 3 characters.", category="error")
-        elif len(email) < 4:
-            flash("Email must be greater than 3 characters.", category="error")
-        elif len(firstName) < 2:
-            flash("First name must be greater than 1 character.", category="error")
-        elif len(lastName) < 2:
-            flash("Last name must be greater than 1 character.", category="error")
-        elif password1 != password2:
-            flash("Passswords don\'t match.", category="error")
-        elif len(password1) < 7:
-            flash("Password must be at least than 7 characters.", category="error")
-        else:
-            if not db.checkForUser(username):
-                if not db.checkForEmail(email):
-                    user = User(username=username, password=generate_password_hash(password1), firstName=firstName,
-                                    lastName=lastName, emailAddress=email)
-
-                    db.connect()
-                    db.addNewUser(user)
-                    flash("Account created!", category="success")
-                    return redirect(url_for("login"))
-                else:
-                    flash("Email address already exists.", category="error")
+        db.connect()
+        if not db.checkForUser(username):
+            if not db.checkForEmail(email):
+                user = User(username=username, password=generate_password_hash(password1), firstName=firstName,
+                                lastName=lastName, emailAddress=email)
+                db.addNewUser(user)
+                flash("Account created!", category="success")
+                return redirect(url_for("login"))
             else:
-                flash("Username already exists.", category="error")
+                flash("Email address already exists.", category="error")
+        else:
+            flash("Username already exists.", category="error")
 
-    # return render_template("login")
+    return render_template("signUp.html", form=form, username=getUserInfo(), permission=getUserPermission(),
+                               userTeamID=getUserTeamID())
 
 # route that handles the display of player/team options for a user creating a new hockey pool team
 @app.route("/players")
 def players():
-
     if "username" in session:
         if not userTeam():
             db.connect()
@@ -193,24 +182,36 @@ def players():
 # it to the database
 @app.route("/players", methods = ['GET', 'POST'])
 def getPoolTeamData():
+    form = request.form
     uploaded_file = request.files["teamLogo"]
     teamName = request.values["teamName"]
+    username = session["username"]
     blockValues = []
     for i in range(21):
-        blockValues.append(request.values["block"+str(i+1)])
+        blockValues.append(request.values["block" + str(i + 1)])
+    db.connect()
     filename = secure_filename(uploaded_file.filename)
-    username = session["username"]
     if filename != "":
         file_ext = os.path.splitext(filename)[1]
-        if file_ext not in app.config["UPLOAD_EXTENSIONS"]: # or file_ext != validate_image(uploaded_file.stream): --> Taken out (can't get it to work)
+        if file_ext not in app.config[
+            "UPLOAD_EXTENSIONS"]:  # or file_ext != validate_image(uploaded_file.stream): --> Taken out (can't get it to work)
             abort(400)
+            flash("Invalid File.", category="error")
         uploaded_file.save(os.path.join(app.config["UPLOAD_PATH"], filename))
 
-        db.addPoolTeam(teamName, username, blockValues, uploaded_file.filename)
-    #db.close()
-    updatePoolTeams.caclulateStandings()
-    return redirect(url_for('index'))
-    # db.close()
+        if not db.checkForPoolTeam(teamName):
+            db.addPoolTeam(teamName, username, blockValues, uploaded_file.filename)
+            addNewTeam()
+            return redirect(url_for('teamStandings'))
+            # db.close()
+
+    playerSelections = db.getPlayersFromDB()
+    teams = {}
+    db.getTeamAbbrevations(teams)
+    flash("Team name already exists.", category="error")
+    return render_template("players.html", playerSelections=playerSelections, teams=teams,
+                           username=getUserInfo(), permission=getUserPermission(), userTeamID=getUserTeamID(),
+                           form=form, blockValues=blockValues)
 
 # page that displays the team standings of all teams in the hockey pool
 @app.route("/teamStandings")
@@ -283,28 +284,14 @@ def modifingUser(username):
     db.connect()
     originalUserData = db.getUserInfo(username)
     if request.method == 'POST':
-        usernameForm = request.form.get("username")
+        form = request.form
+        usernameForm = request.form.get("userName")
         email = request.form.get("email")
         firstName = request.form.get("firstName")
         lastName = request.form.get("lastName")
         password1 = request.form.get("password1")
         print("Password1 = " + password1)
-        password2 = request.form.get("password2")
         permission = request.form.get("permission")
-
-        # if len(username) < 4:
-        #     flash("Username must be greater than 3 characters.", category="error")
-        # elif len(email) < 4:
-        #     flash("Email must be greater than 3 characters.", category="error")
-        # elif len(firstName) < 2:
-        #     flash("First name must be greater than 1 character.", category="error")
-        # elif len(lastName) < 2:
-        #     flash("Last name must be greater than 1 character.", category="error")
-        # elif password1 != password2:
-        #     flash("Passswords don\'t match.", category="error")
-        # elif len(password1) < 7:
-        #     flash("Password must be at least than 7 characters.", category="error")
-        # else:
         if (originalUserData.username == usernameForm) or (not db.checkForUser(usernameForm)):
             if (originalUserData.emailAddress == email) or (not db.checkForEmail(email)):
                 user = User(username=usernameForm, password=generate_password_hash(password1), firstName=firstName,
@@ -316,12 +303,17 @@ def modifingUser(username):
 
                 if (originalUserData.username != user.username):
                     db.modifyPoolTeamUser(originalUserData.username, user)
+
+                if session['username'] == username:
+                    session.pop("username", None)
+                    session['username'] = usernameForm
                 return redirect(url_for("admin"))
             else:
                 flash("Email address already exists.", category="error")
         else:
             flash("Username already exists.", category="error")
-
+    return render_template("modifyUser.html", userToModify=originalUserData, username=getUserInfo(),
+                           permission=getUserPermission(), userTeamID=getUserTeamID(), form=form)
 
 @app.route("/modifyTeam/<team>")
 def modifyTeam(team):
@@ -338,6 +330,7 @@ def modifyTeam(team):
 
 @app.route("/modifyTeam/<team>", methods = ['GET', 'POST'])
 def modifingTeam(team):
+    form = request.form
     originalTeamName = team
     print(originalTeamName)
     uploaded_file = request.files["teamLogo"]
@@ -346,6 +339,7 @@ def modifingTeam(team):
     for i in range(21):
         blockValues.append(request.values["block" + str(i + 1)])
 
+    db.connect()
     filename = secure_filename(uploaded_file.filename)
     if filename != "":
         file_ext = os.path.splitext(filename)[1]
@@ -353,11 +347,22 @@ def modifingTeam(team):
             abort(400)
         uploaded_file.save(os.path.join(app.config["UPLOAD_PATH"], filename))
 
-        db.updatePoolTeam(originalTeamName, teamName, blockValues, uploaded_file.filename)
-    else:
+        if not db.checkForPoolTeam(teamName) or (originalTeamName == teamName):
+            db.updatePoolTeam(originalTeamName, teamName, blockValues, uploaded_file.filename)
+            return redirect(url_for('admin'))
+    elif not db.checkForPoolTeam(teamName):
         db.updatePoolTeamNoImage(originalTeamName, teamName, blockValues)
-    # db.close()
-    return redirect(url_for('admin'))
+        return redirect(url_for('admin'))
+            # db.close()
+
+    playerSelections = db.getPlayersFromDB()
+    teams = {}
+    db.getTeamAbbrevations(teams)
+    poolTeam = db.getPoolTeamByTeamName(team)
+    flash("Team name already exists.", category="error")
+    return render_template("modifyTeam.html", playerSelections=playerSelections, teams=teams, poolTeam=poolTeam,
+                           username=getUserInfo(), permission=getUserPermission(), userTeamID=getUserTeamID(),
+                           form=form, blockValues=blockValues)
 
 @app.route("/admin", methods = ['GET', 'POST'])
 def getAdminCommand():
