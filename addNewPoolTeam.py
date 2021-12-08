@@ -37,7 +37,6 @@ def addNewTeam():
     for team in teamStandings:
         db.setTeamStats(team)
 
-    db.close()
     print("Standings updated after new team added")
     return
 

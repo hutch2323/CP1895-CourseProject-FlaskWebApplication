@@ -9,6 +9,10 @@ $(document).ready( () => {
         let isValid = true;
         let alerts = [];
 
+        if ($("#alert").length > 0){
+            $("#alert span").click();
+        }
+
         // // validate the file upload to ensure that a file is
         const teamLogo = $("#teamLogo").val();
 		if (teamLogo == "") {
@@ -66,13 +70,17 @@ $(document).ready( () => {
         // $("#phone").val(phone);
 
         // prevent the submission of the form if any entries are invalid
+        // prevent the submission of the form if any entries are invalid
         if (!isValid) {
             evt.preventDefault();
             let alertString = ""
-            for(let alert of alerts){
-                alertString += alert + "\n"
+            for (let alert of alerts) {
+                let stringHTML = `<div id="alert" class="alert alert-danger alter-dismissable fade show" role="alert">`;
+                stringHTML += alert;
+                stringHTML += `<button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span>
+                           </button></div>`;
+                $("#alertBanner").append(stringHTML);
             }
-            window.alert(alertString);
         }
     });
 

@@ -1,15 +1,20 @@
 {% extends "base.html" %}
-  {% block title %}Sign Up{% endblock %} {% block content %}
+{% block title %}Modify User{% endblock %}
+{% block content %}
     <form method="POST">
       <h3 align="center">Modify User</h3>
       <div class="form-group">
-        <label for="username">Username</label>
+        <label for="userName">Username</label>
         <input
           type="text"
           class="form-control"
-          id="username"
-          name="username"
-          value="{{userToModify.username}}"
+          id="userName"
+          name="userName"
+          {% if 'userName' in form %}
+              value="{{form['userName']}}"
+          {% else %}
+            value="{{userToModify.username}}"
+          {% endif %}
         />
       </div>
       <div class="form-group">
@@ -19,7 +24,11 @@
           class="form-control"
           id="email"
           name="email"
-          value="{{userToModify.emailAddress}}"
+          {% if 'email' in form %}
+              value="{{form['email']}}"
+          {% else %}
+            value="{{userToModify.emailAddress}}"
+          {% endif %}
         />
       </div>
       <div class="form-group">
@@ -29,7 +38,11 @@
           class="form-control"
           id="firstName"
           name="firstName"
-          value="{{userToModify.firstName}}"
+          {% if 'firstName' in form %}
+            value="{{form['firstName']}}"
+          {% else %}
+            value="{{userToModify.firstName}}"
+          {% endif %}
         />
       </div>
       <div class="form-group">
@@ -39,7 +52,11 @@
           class="form-control"
           id="lastName"
           name="lastName"
-          value="{{userToModify.lastName}}"
+          {% if 'lastName' in form %}
+            value="{{form['lastName']}}"
+          {% else %}
+            value="{{userToModify.lastName}}"
+          {% endif %}
         />
       </div>
       <div class="form-group">
@@ -79,28 +96,17 @@
             class="form-control"
             id="permission"
             name="permission"
-            placeholder="{{userToModify.permission}}"
+            {% if 'permission' in form %}
+              value="{{form['permission']}}"
+            {% else %}
+              value="{{userToModify.permission}}"
+            {% endif %}
             />
         </div>
       {% endif %}
       <br />
-      <button type="submit" class="btn btn-primary">Submit</button>
+      <button id="submit" type="submit" class="btn btn-primary">Submit</button>
     </form>
     <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.6.0-min.js') }}"></script>
-		<script type=text/javascript>
-			$(function() {
-                $("#password1Container").hide();
-                $("#password2Container").hide();
-                $("#updatePassword").change( () => {
-                  if($("#updatePassword").prop("checked") == true) {
-                    console.log("checked");
-                    $("#password1Container").show();
-                    $("#password2Container").show();
-                  } else {
-                    $("#password1Container").hide();
-                    $("#password2Container").hide();
-                  }
-                });
-			});
-		</script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/modifyUser.js') }}"></script>
 {% endblock %}

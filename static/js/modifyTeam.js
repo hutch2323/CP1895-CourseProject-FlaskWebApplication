@@ -23,11 +23,16 @@ $(document).ready( () => {
 	// the handler for the click event of the submit button
     $("#submit").click( evt => {
         let isValid = true;
+        let alerts = [];
+
+        if ($("#alert").length > 0){
+            $("#alert span").click();
+        }
 
 		// validate the team Name
         const teamName = $("#teamName").val().trim();
 		if (teamName == "") {
-            $("#teamName").next().text("This field is required.");
+            alerts[alerts.length] = "Team Name field is required.";
             isValid = false;
 		} else {
 			$("#teamName").next().text("*");
@@ -39,7 +44,7 @@ $(document).ready( () => {
             console.log("block");
             console.log($(block).attr("id"));
             if ($(block).find(":selected").text() == ""){
-                $("#teamName").next().text($(block).attr("id") + " must have selection");
+                alerts[alerts.length] = $(block).attr("id") + " must have selection";
                 isValid = false;
             }
         })
@@ -47,6 +52,14 @@ $(document).ready( () => {
         // prevent the submission of the form if any entries are invalid
         if (!isValid) {
             evt.preventDefault();
+            let alertString = ""
+            for (let alert of alerts) {
+                let stringHTML = `<div id="alert" class="alert alert-danger alter-dismissable fade show" role="alert">`;
+                stringHTML += alert;
+                stringHTML += `<button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span>
+                           </button></div>`;
+                $("#alertBanner").append(stringHTML);
+            }
         }
     });
 
