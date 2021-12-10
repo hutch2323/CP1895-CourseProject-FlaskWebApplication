@@ -1,24 +1,38 @@
 {% extends "base.html" %}
 {% block title %}Create Team{% endblock %}
 {% block content%}
-    <h1>Player Selection</h1>
+    <div id="heading" class="mt-4 p-4 bg-dark text-white">
+            <h1 class="text-center">Create Team</h1>
+    </div>
 
-    <form method="POST" action="" enctype="multipart/form-data", style="width:50%;margin:auto">
-        <label for="teamLogo">Logo:</label>
-        <input type="file" name="teamLogo" id="teamLogo" accept=".png, .jfif, .jpg, .jpeg" >
-        <br>
-        <label for="teamName">Team Name:</label>
-        <input type="text" name="teamName" id="teamName"
+    <form class="pt-3" method="POST" action="" enctype="multipart/form-data", style="margin:auto">
+<!--        <div class="p-3 text-center">-->
+<!--            <label for="teamLogo">Logo:</label>-->
+<!--            <input type="file" name="teamLogo" id="teamLogo" accept=".png, .jfif, .jpg, .jpeg" >-->
+<!--        </div>-->
+        <div class="mb-3">
+            <label for="teamLogo" class="form-label">Team Logo:</label>
+            <input class="form-control" type="file" name="teamLogo"  id="teamLogo" accept=".png, .jfif, .jpg, .jpeg">
+        </div>
+        <div class="mb-3">
+          <label for="teamName" class="form-label">Team Name:</label>
+          <input type="text" class="form-control" name="teamName" id="teamName"
             {% if 'teamName' in form %}
-                value="{{form['teamName']}}"
-            {% endif %}
-        ><span>*</span>
-        <input type="submit" id="submit" value="Submit">
+                    value="{{form['teamName']}}"
+            {% endif %}>
+        </div>
+<!--        <div>-->
+<!--            <label class="form-control" for="teamName">Team Name:</label>-->
+<!--            <input class="form-control" type="text" name="teamName" id="teamName"-->
+<!--                {% if 'teamName' in form %}-->
+<!--                    value="{{form['teamName']}}"-->
+<!--                {% endif %} >-->
+<!--        </div>-->
         {% set count = namespace(value=1) %}
         {% for i in range(7) %}
-            <div class="tableRows">
+            <div class="row p-3">
                 {% for j in range(3) %}
-                <div id="block{{count.value}}" class="block">
+                <div id="block{{count.value}}" class="col">
                     <h5>Group: {{count.value}}</h5>
                     <select name="block{{count.value}}" id="{{count.value}}" size="5", style="overflow-y:auto;padding:5px;border:0px">
                     {% for player in playerSelections %}
@@ -44,6 +58,7 @@
                 {% endfor %}
             </div>
         {% endfor %}
+        <div class="text-center p-3"><input class="btn btn-primary" type="submit" id="submit" value="Submit"></div>
     </form>
     <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.6.0-min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/createTeam.js') }}"></script>

@@ -10,7 +10,7 @@ $(document).ready( () => {
         let alerts = [];
 
         if ($("#alert").length > 0){
-            $("#alert span").click();
+            $("#alertBanner").html("");
         }
 
         // validate username
@@ -115,16 +115,29 @@ $(document).ready( () => {
         // $("#phone").val(phone);
 
         // prevent the submission of the form if any entries are invalid
+        // if (!isValid) {
+        //     evt.preventDefault();
+        //     let alertString = ""
+        //     for (let alert of alerts) {
+        //         let stringHTML = `<div id="alert" class="alert alert-danger alter-dismissable fade show" role="alert">`;
+        //         stringHTML += alert;
+        //         stringHTML += `<button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span>
+        //                    </button></div>`;
+        //         $("#alertBanner").append(stringHTML);
+        //     }
+        // }
         if (!isValid) {
             evt.preventDefault();
             let alertString = ""
-            for(let alert of alerts){
-                let stringHTML = `<div id="alert" class="alert alert-danger alter-dismissable fade show" role="alert">`;
-                stringHTML += alert;
-                stringHTML += `<button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span>
-                           </button></div>`;
-                $("#alertBanner").append(stringHTML);
+            for (let alert of alerts) {
+                $("#alertBanner").append(`<div id="alert" class="alert alert-danger d-flex align-items-center" role="alert">
+                          <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg>
+                          <div>
+                            ${alert}
+                          </div>
+                    </div>`);
             }
+        }
             // if ($("#alert").length > 0){
             //     let errorString = ""
             //     errorString += alertString;
@@ -138,6 +151,5 @@ $(document).ready( () => {
             //                </button></div>`;
             //     $("#alertBanner").append(stringHTML);
             // }
-        }
     });
 });

@@ -1,12 +1,18 @@
 {% extends "base.html" %}
 {% block title %}Team Standings{% endblock %}
 {% block content %}
-    <h1>Team Standings</h1>
-    <table style="text-align:center">
-        <tr><th>Rank</th><th>Team Name</th><th>Points</th><th>Point Difference</th><th>Rank Difference</th></tr>
-        {% for team in teamStandings %}
-            <tr><td>{{team[4]}}</td><td><a href="{{ url_for('teamStats', teamID=team[0]) }}">{{team[1]}}</a></td><td>
-                {{team[2]}}</td><td>{{team[2]-team[3]}}</td><td>{{team[4]-team[5]}}</td></tr>
-        {% endfor %}
-    </table>
+    <div class="aligns-items-center justify-content-center pb-3" style="max-width: 700px; text-align: center">
+        <div id="heading" class="mt-4 p-4 bg-dark text-white">
+            <h1 style="text-align:center">Team Standings</h1>
+        </div>
+        <div class="pt-3">
+            <table class="table table-striped w-100" style="text-align:center">
+                <tr class="table-dark"><th scope="col">Rank</th><th scope="col">Team Name</th><th scope="col">Points</th><th scope="col">Point Difference</th><th scope="col">Rank Difference</th></tr>
+                {% for team in teamStandings %}
+                    <tr><td>{{team[4]}}</td><td><a href="{{ url_for('teamStats', teamID=team[0]) }}">{{team[1]}}</a></td><td>
+                        {{team[2]}}</td><td>{{team[2]-team[3]}}</td><td>{{team[4]-team[5]}}</td></tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
 {% endblock %}
