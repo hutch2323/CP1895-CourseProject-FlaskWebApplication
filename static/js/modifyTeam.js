@@ -1,5 +1,6 @@
 // import json;
 "use strict";
+console.log("Hello")
 $(document).ready( () => {
     // hide the options for uploading an image by default
     $("#logoContainer").hide();
@@ -22,18 +23,39 @@ $(document).ready( () => {
         let isValid = true;
         let alerts = [];
 
-        if ($("#alert").length > 0){
+        if ($("#alert").length > 0) {
             $("#alertBanner").html("");
         }
 
-		// validate the team Name
+        // validate file size. File type will be validated by server
+        if($("#updateImage").prop("checked") == true) {
+            try {
+                if ($("#teamLogo")[0].files[0].size !== undefined) {
+                    const fileSize = $("#teamLogo")[0].files[0].size;
+                    if (fileSize > 500000) {
+                        alerts[alerts.length] = "File size is too large!";
+                        isValid = false;
+                    }
+                }
+            } catch (TypeError) { // ensure that a file is selected
+                alerts[alerts.length] = "Team logo is required!";
+                isValid = false;
+            }
+        }
+
+        // validate the team Name
+        const teamNamePattern = /\b[A-Za-z0-9\s]{6,30}\b/;
         const teamName = $("#teamName").val().trim();
-		if (teamName == "") {
+        if (teamName == "") {
             alerts[alerts.length] = "Team Name field is required.";
             isValid = false;
-		} else {
-			$("#teamName").next().text("*");
-		}
+        } else if ((teamName.length < 6) || (teamName.length > 30)) {
+			alerts[alerts.length] = "Team Name field must be between 6 and 30 characters!";
+            isValid = false;
+        } else if ( !teamNamePattern.test(teamName) ) {
+            alerts[alerts.length] = "Team name must only contain alphanumeric characters [A-Z, a-z, or 0-9] or white space."
+            isValid = false;
+        }
         $("#teamName").val(teamName);
 
         // validate the player selection blocks
@@ -45,19 +67,6 @@ $(document).ready( () => {
                 isValid = false;
             }
         })
-
-        // prevent the submission of the form if any entries are invalid
-        // if (!isValid) {
-        //     evt.preventDefault();
-        //     let alertString = ""
-        //     for (let alert of alerts) {
-        //         let stringHTML = `<div id="alert" class="alert alert-danger alter-dismissable fade show" role="alert">`;
-        //         stringHTML += alert;
-        //         stringHTML += `<button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span>
-        //                    </button></div>`;
-        //         $("#alertBanner").append(stringHTML);
-        //     }
-        // }
         if (!isValid) {
             evt.preventDefault();
             let alertString = ""
@@ -69,6 +78,7 @@ $(document).ready( () => {
                           </div>
                     </div>`);
             }
+            window.scrollTo(0, 335);
         }
     });
 

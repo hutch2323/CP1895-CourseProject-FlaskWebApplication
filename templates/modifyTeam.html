@@ -30,13 +30,17 @@
         <div id="logoContainer" class="mb-3">
             <label for="teamLogo" class="form-label">Team Logo:</label>
             <input class="form-control" type="file" name="teamLogo"  id="teamLogo" accept=".png, .jfif, .jpg, .jpeg">
+            <label for="teamLogo" class="form-label text-danger">* Maximum File Size: 500KB</label>
         </div>
         <div class="mb-3">
           <label for="teamName" class="form-label">Team Name:</label>
           <input type="text" class="form-control" name="teamName" id="teamName"
             {% if 'teamName' in form %}
-                    value="{{form['teamName']}}"
-            {% endif %}>
+                value="{{form['teamName']}}"
+            {% else %}
+                value="{{poolTeam.teamName}}"
+            {% endif %}
+            >
         </div>
 
             {% set count = namespace(value=1) %}

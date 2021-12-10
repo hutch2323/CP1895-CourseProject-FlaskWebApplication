@@ -37,6 +37,12 @@ ul.navbar-nav a:hover {
         font-size: 14px;
     }
 }
+
+@media (max-width: 450px) {
+    .table {
+        font-size: 12px;
+    }
+}
 @media (max-width: 768px){
     #playerStats {
         font-size: 15px;
@@ -46,45 +52,58 @@ ul.navbar-nav a:hover {
     }
 }
 
-@media (max-width: 546px){
+@media (max-width: 575px){
     #playerStats {
-        font-size: 13px;
+        font-size: 12px;
     }
     #goalieStats {
-        font-size: 13px;
+        font-size: 12px;
     }
 }
 
 @media (max-width: 500px){
     #playerStats {
-        font-size: 12px;
+        font-size: 11px;
     }
     #goalieStats {
-        font-size: 12px;
+        font-size: 11px;
     }
 }
 
 @media (max-width: 470px){
     #playerStats {
-        font-size: 11px;
+        font-size: 10px;
     }
     #goalieStats {
-        font-size: 11px;
+        font-size: 10px;
     }
 }
 
 @media (max-width: 445px){
     #playerStats {
-        font-size: 10px;
+        font-size: 9px;
     }
     #goalieStats {
-        font-size: 10px;
+        font-size: 9px;
     }
 }
 
 @media (max-width: 3000px){
     .container{
         max-width: 720px;
+    }
+}
+
+.no-close .ui-dialog-titlebar-close {
+  display: none;
+}
+
+@media (max-width: 900px) {
+    #rightColumn, #leftColumn {
+        display: none;
+    }
+    .col-md-8 {
+        width: 100%;
     }
 }
 
