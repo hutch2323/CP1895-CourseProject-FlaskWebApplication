@@ -1,9 +1,73 @@
 {% extends "base.html" %}
 {% block title %}The Hockey Pool{% endblock %}
 {% block content%}
-    <div data-role="page" id="welcome" data-url="{{ url_for('index') }}"></div>
-    <h1>Welcome to The Hockey Pool</h1>
-    {% if username is not none %}
-        <p>Hello {{username}}</p>
-    {% endif %}
+<div>
+    <div id="heading" class="mt-4 p-4 bg-dark text-white">
+        <h1 style="text-align:center">Welcome to The Hockey Pool</h1>
+    </div>
+    <ul class="list-group list-group-flush p-3">
+        <li class="list-group-item">
+            <h4>Sign Up</h4>
+        </li>
+        <li class="list-group-item">
+            <p>To get started with The Hockey Pool, you must first sign up and create an account. This option can be found in the
+            upper right hand corner of the webpage.</p>
+            <h6>Step 1:</h6>
+            <p>Click Login/Sign Up</p>
+            <img class="img-fluid" src="{{ url_for('static', filename='images/signUp.png')}}">
+            <h6>Step 2:</h6>
+            <p>Click Sign Up</p>
+            <img class="img-fluid" src="{{ url_for('static', filename='images/signUp2.png')}}">
+            <h6>Step 3:</h6>
+            <p>Fill out the signup form and submit</p>
+            <img class="img-fluid" src="{{ url_for('static', filename='images/signUp3.png')}}">
+        </li>
+        <li class="list-group-item">
+             <h4>Login</h4>
+        </li>
+        <li class="list-group-item">
+            <h6>Step 1:</h6>
+            <p>After creating an account, the you will be directed to the login page. Fill in the information and click Login</p>
+            <img class="img-fluid" src="{{ url_for('static', filename='images/login.png')}}">
+        </li>
+        <li class="list-group-item">
+             <h4>Create Team</h4>
+        </li>
+        <li class="list-group-item">
+            <h6>Step 1:</h6>
+            <p>Find the 'Create Team' link in the tool bar</p>
+            <img class="img-fluid" src="{{ url_for('static', filename='images/createTeam0.png')}}">
+            <h6>Step 2:</h6>
+            <p>Fill out all information on the form. You must make a selection for all 21 groups</p>
+            <img class="img-fluid" src="{{ url_for('static', filename='images/createTeam1.png')}}">
+            <h6>Step 3:</h6>
+            <p>Click the 'Submit' button at the bottom of the form to create your team</p>
+            <img class="img-fluid" src="{{ url_for('static', filename='images/createTeam2.png')}}">
+        </li>
+        <li class="list-group-item">
+            <h4>View Standings</h4>
+        </li>
+        <li class="list-group-item">
+            <h6>Step 1:</h6>
+            <p>After you've successfully created your team, you will be automatically directed to the Team Standings page</p>
+            <img class="img-fluid" src="{{ url_for('static', filename='images/viewStandings2.png')}}">
+            <h6>Step 2:</h6>
+            <p>Alternatively, you can select the 'Team Standings' link in the navigation bar above</p>
+            <img class="img-fluid" src="{{ url_for('static', filename='images/viewStandings1.png')}}">
+        </li>
+        <li class="list-group-item">
+            <h4>View Team</h4>
+        </li>
+        <li class="list-group-item">
+            <h6>Step 1:</h6>
+            <p>To view your team, click on your username (in the upper right-hand corner) and select 'View Team' from the drop-down</p>
+            <img class="img-fluid" src="{{ url_for('static', filename='images/viewTeam1.png')}}">
+            <h6>Step 2:</h6>
+            <p>Once this is clicked (or if the team name is clicked directly in the 'Team Standings' page, you will be brought to your team page</p>
+            <img class="img-fluid" src="{{ url_for('static', filename='images/viewTeam2.png')}}">
+            <img class="img-fluid" src="{{ url_for('static', filename='images/viewTeam3.png')}}">
+        </li>
+    </ul>
+</div>
+
 {% endblock %}

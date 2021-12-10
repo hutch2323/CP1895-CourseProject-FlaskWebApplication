@@ -1,11 +1,10 @@
 import sqlite3
-from contextlib import closing
 import os
-from flask import Flask, render_template, redirect, request, abort, flash, session, url_for, escape, jsonify, json
-import imghdr
+from flask import Flask, render_template, redirect, request, flash, session, url_for
 from werkzeug.utils import secure_filename
 from werkzeug.security import check_password_hash, generate_password_hash
 from apscheduler.schedulers.background import BackgroundScheduler
+from werkzeug.exceptions import RequestEntityTooLarge
 import updatePoolTeams
 from statsCollector import collectStats
 import db
@@ -13,10 +12,7 @@ from user import User
 import random
 from pytz import utc
 from addNewPoolTeam import addNewTeam
-from updatePoolTeams import updateTeams
 
-
-# db = SQLAlchemy
 DB_NAME = "hockeyPool.db"
 
 def updateStats():
@@ -34,16 +30,10 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = "thdhshsh sshsrhrsdhs"
 app.config['DATABASE'] = "hockeyPool.db"
 app.config["UPLOAD_PATH"] = "static/images"
-app.config["MAX_CONTENT_LENGTH"] = 1024 * 1024
+app.config["MAX_CONTENT_LENGTH"] = 0.5 * 1024 * 1024  #16MB max-limit
 app.config["UPLOAD_EXTENSIONS"] = ['.jpg', '.png', '.jfif', '.jpeg']
-# app.config["SQLALCHEMY_DATABASE_URI"] = f'sqlite:///{DB_NAME}'
-# db.init_app(app)
-# conn = sqlite3.connect("hockeyPool.db", check_same_thread=False)
-# app = create_app()
-#
-# if __name__ == "__main__":
-#     app.run(debug=True)
 
+# conn = sqlite3.connect("hockeyPool.db", check_same_thread=False)
 
 
 # home page of the application
@@ -51,7 +41,6 @@ app.config["UPLOAD_EXTENSIONS"] = ['.jpg', '.png', '.jfif', '.jpeg']
 def index():
     return render_template("index.html", username=getUserInfo(), permission=getUserPermission(),
                            userTeamID=getUserTeamID())
-    # db.close()
 
 def userTeam():
     while (True):
@@ -120,7 +109,6 @@ def loginUser():
 
     return render_template("login.html", username=getUserInfo(), permission=getUserPermission(),
                            userTeamID=getUserTeamID(), form=form)
-    # db.close()
 
 @app.route("/logout")
 def logout():
@@ -171,47 +159,67 @@ def players():
 
             teams = {}
             db.getTeamAbbrevations(teams)
-            #db.close()
             return render_template("players.html", playerSelections=playerSelections, teams=teams,
                                    username=getUserInfo(), permission=getUserPermission(), userTeamID=getUserTeamID())
 
     return redirect(url_for('index'))
-    # db.close()
 
 # this handles the page where a user can create a hockey pool team. It will retrieve the submitted information and add
 # it to the database
 @app.route("/createTeam", methods = ['GET', 'POST'])
 def getPoolTeamData():
-    form = request.form
-    uploaded_file = request.files["teamLogo"]
-    teamName = request.values["teamName"]
-    username = session["username"]
-    blockValues = []
-    for i in range(21):
-        blockValues.append(request.values["block" + str(i + 1)])
-    db.connect()
-    filename = secure_filename(uploaded_file.filename)
-    if filename != "":
-        file_ext = os.path.splitext(filename)[1]
-        if file_ext not in app.config[
-            "UPLOAD_EXTENSIONS"]:  # or file_ext != validate_image(uploaded_file.stream): --> Taken out (can't get it to work)
-            abort(400)
-            flash("Invalid File.", category="error")
-        uploaded_file.save(os.path.join(app.config["UPLOAD_PATH"], filename))
+    session['action'] = "createTeam"
+    if request.method == 'POST':
+        form = request.form
+        session.pop('action', None)
+        teamName = request.values["teamName"]
+        username = session["username"]
+        blockValues = []
+        for i in range(21):
+            blockValues.append(request.values["block" + str(i + 1)])
+        db.connect()
+        playerSelections = db.getPlayersFromDB()
+        teams = {}
+        db.getTeamAbbrevations(teams)
 
-        if not db.checkForPoolTeam(teamName):
-            db.addPoolTeam(teamName, username, blockValues, uploaded_file.filename)
-            addNewTeam()
-            return redirect(url_for('teamStandings'))
-            # db.close()
+        try:
+            uploaded_file = request.files["teamLogo"]
+            filename = secure_filename(uploaded_file.filename)
+        except RequestEntityTooLarge as e:
+            flash("File size too large!", category="error")
+            return render_template("players.html", playerSelections=playerSelections, teams=teams,
+                                   username=getUserInfo(), permission=getUserPermission(),
+                                   userTeamID=getUserTeamID(),
+                                   form=form, blockValues=blockValues)
+        if filename != "":
+            try:
+                file_ext = os.path.splitext(filename)[1]
 
-    playerSelections = db.getPlayersFromDB()
-    teams = {}
-    db.getTeamAbbrevations(teams)
-    flash("Team name already exists.", category="error")
-    return render_template("players.html", playerSelections=playerSelections, teams=teams,
-                           username=getUserInfo(), permission=getUserPermission(), userTeamID=getUserTeamID(),
-                           form=form, blockValues=blockValues)
+                if file_ext not in app.config["UPLOAD_EXTENSIONS"]:
+                    flash("Invalid File.", category="error")
+                    return render_template("players.html", playerSelections=playerSelections, teams=teams,
+                                           username=getUserInfo(), permission=getUserPermission(),
+                                           userTeamID=getUserTeamID(),
+                                           form=form, blockValues=blockValues)
+                uploaded_file.save(os.path.join(app.config["UPLOAD_PATH"], filename))
+            except RequestEntityTooLarge as e:
+                flash("File size too large!", category="error")
+                return render_template("players.html", playerSelections=playerSelections, teams=teams,
+                                       username=getUserInfo(), permission=getUserPermission(),
+                                       userTeamID=getUserTeamID(),
+                                       form=form, blockValues=blockValues)
+
+            if not db.checkForPoolTeam(teamName):
+                db.addPoolTeam(teamName, username, blockValues, uploaded_file.filename)
+                addNewTeam()
+                flash("Team created!", category="success")
+                return redirect(url_for('teamStandings'))
+
+        flash("Team name already exists.", category="error")
+        return render_template("players.html", playerSelections=playerSelections, teams=teams,
+                               username=getUserInfo(), permission=getUserPermission(), userTeamID=getUserTeamID(),
+                               form=form, blockValues=blockValues)
+    return redirect(url_for("players"))
 
 # page that displays the team standings of all teams in the hockey pool
 @app.route("/teamStandings")
@@ -224,16 +232,6 @@ def teamStandings():
                                    permission=getUserPermission(), userTeamID=getUserTeamID())
         except sqlite3.ProgrammingError:
             db.close()
-    # db.close()
-
-# function to validate the image that was uploaded when a user creates a pool team
-def validate_image(stream):
-    header = stream.read(512)
-    stream.seek(0)
-    format = imghdr.what(None, header)
-    if not format:
-        return None
-    return '.' + (format if format != 'jpeg' else 'jpg')
 
 # dynamic route that will display the players on a specified team. This is used by the standings page to link each team
 # to it's roster
@@ -250,7 +248,6 @@ def teamStats(teamID):
 
     return render_template("teamStats.html", teamID=teamID, selectedTeam=selectedTeam, playerStats=playerStats,
                            username=getUserInfo(), permission=getUserPermission(), userTeamID=getUserTeamID())
-    # db.close()
 
 @app.route("/admin")
 def admin():
@@ -289,25 +286,30 @@ def modifingUser(username):
         email = request.form.get("email")
         firstName = request.form.get("firstName")
         lastName = request.form.get("lastName")
+        currentPassword = request.form.get("currentPassword")
         password1 = request.form.get("password1")
-        print("Password1 = " + password1)
         permission = request.form.get("permission")
         if (originalUserData.username == usernameForm) or (not db.checkForUser(usernameForm)):
             if (originalUserData.emailAddress == email) or (not db.checkForEmail(email)):
                 user = User(username=usernameForm, password=generate_password_hash(password1), firstName=firstName,
                             lastName=lastName, emailAddress=email, permission=permission)
-                if password1 == "":
-                    db.modifyUserNoPassword(username, user)
+                if ((currentPassword is None) or check_password_hash(originalUserData.password, currentPassword)) or session['permission'] == "admin":
+                    if password1 == "":
+                        db.modifyUserNoPassword(username, user)
+                    else:
+                        db.modifyUser(username, user)
+
+                    if (originalUserData.username != user.username):
+                        db.modifyPoolTeamUser(originalUserData.username, user)
+
+                    if session['username'] == username:
+                        session.pop("username", None)
+                        session['username'] = usernameForm
+
+                    flash("User Modified!", category="success")
+                    return redirect(url_for("admin"))
                 else:
-                    db.modifyUser(username, user)
-
-                if (originalUserData.username != user.username):
-                    db.modifyPoolTeamUser(originalUserData.username, user)
-
-                if session['username'] == username:
-                    session.pop("username", None)
-                    session['username'] = usernameForm
-                return redirect(url_for("admin"))
+                    flash("Invalid password.", category="error")
             else:
                 flash("Email address already exists.", category="error")
         else:
@@ -330,88 +332,117 @@ def modifyTeam(team):
 
 @app.route("/modifyTeam/<team>", methods = ['GET', 'POST'])
 def modifingTeam(team):
-    form = request.form
-    originalTeamName = team
-    print(originalTeamName)
-    uploaded_file = request.files["teamLogo"]
-    teamName = request.values["teamName"]
-    blockValues = []
-    for i in range(21):
-        blockValues.append(request.values["block" + str(i + 1)])
+    session['action'] = "modifyTeam"
+    session['teamToModify'] = team
+    if request.method == 'POST':
+        form = request.form
+        session.pop('action', None)
+        session.pop('teamToModify', None)
+        originalTeamName = team
+        print(originalTeamName)
+        uploaded_file = request.files["teamLogo"]
+        teamName = request.values["teamName"]
+        blockValues = []
+        for i in range(21):
+            blockValues.append(request.values["block" + str(i + 1)])
 
-    db.connect()
-    filename = secure_filename(uploaded_file.filename)
-    if filename != "":
-        file_ext = os.path.splitext(filename)[1]
-        if file_ext not in app.config["UPLOAD_EXTENSIONS"]:  # or file_ext != validate_image(uploaded_file.stream): --> Taken out (can't get it to work)
-            abort(400)
-        uploaded_file.save(os.path.join(app.config["UPLOAD_PATH"], filename))
+        db.connect()
+        playerSelections = db.getPlayersFromDB()
+        teams = {}
+        db.getTeamAbbrevations(teams)
+        poolTeam = db.getPoolTeamByTeamName(team)
+        filename = secure_filename(uploaded_file.filename)
+        if filename != "":
+            file_ext = os.path.splitext(filename)[1]
 
-        if not db.checkForPoolTeam(teamName) or (originalTeamName == teamName):
-            db.updatePoolTeam(originalTeamName, teamName, blockValues, uploaded_file.filename)
+            try:
+                if file_ext not in app.config["UPLOAD_EXTENSIONS"]:
+                    flash("Invalid File Type.", category="error")
+                    return render_template("modifyTeam.html", playerSelections=playerSelections, teams=teams,
+                                           poolTeam=poolTeam,
+                                           username=getUserInfo(), permission=getUserPermission(),
+                                           userTeamID=getUserTeamID(),
+                                           form=form, blockValues=blockValues)
+                uploaded_file.save(os.path.join(app.config["UPLOAD_PATH"], filename))
+            except RequestEntityTooLarge:
+                flash("File Size Too Large!", category="error")
+                return render_template("modifyTeam.html", playerSelections=playerSelections, teams=teams,
+                                       poolTeam=poolTeam,
+                                       username=getUserInfo(), permission=getUserPermission(),
+                                       userTeamID=getUserTeamID(),
+                                       form=form, blockValues=blockValues)
+
+            if not db.checkForPoolTeam(teamName) or (originalTeamName == teamName):
+                db.updatePoolTeam(originalTeamName, teamName, blockValues, uploaded_file.filename)
+                flash("Team Modified!", category="success")
+                return redirect(url_for('admin'))
+        elif not db.checkForPoolTeam(teamName) or (originalTeamName == teamName):
+            db.updatePoolTeamNoImage(originalTeamName, teamName, blockValues)
+            flash("Team Modified!", category="success")
             return redirect(url_for('admin'))
-    elif not db.checkForPoolTeam(teamName):
-        db.updatePoolTeamNoImage(originalTeamName, teamName, blockValues)
-        return redirect(url_for('admin'))
-            # db.close()
 
-    playerSelections = db.getPlayersFromDB()
-    teams = {}
-    db.getTeamAbbrevations(teams)
-    poolTeam = db.getPoolTeamByTeamName(team)
-    flash("Team name already exists.", category="error")
-    return render_template("modifyTeam.html", playerSelections=playerSelections, teams=teams, poolTeam=poolTeam,
-                           username=getUserInfo(), permission=getUserPermission(), userTeamID=getUserTeamID(),
-                           form=form, blockValues=blockValues)
+        flash("Team name already exists.", category="error")
+        return render_template("modifyTeam.html", playerSelections=playerSelections, teams=teams, poolTeam=poolTeam,
+                               username=getUserInfo(), permission=getUserPermission(), userTeamID=getUserTeamID(),
+                               form=form, blockValues=blockValues)
+
+    return redirect(url_for('modifyTeam'))
+
+@app.errorhandler(413)
+def largefile_error(e):
+   flash("File Size Too Large!", category="error")
+
+   db.connect()
+   playerSelections = db.getPlayersFromDB()
+   teams = {}
+   db.getTeamAbbrevations(teams)
+   if 'action' in session:
+       if session['action'] == "createTeam":
+           return render_template("players.html", playerSelections=playerSelections, teams=teams,
+                                  username=getUserInfo(), permission=getUserPermission(),
+                                  userTeamID=getUserTeamID())
+       elif session['action'] == "modifyTeam":
+           poolTeam = db.getPoolTeamByTeamName(session['teamToModify'])
+           return render_template("modifyTeam.html", playerSelections=playerSelections, teams=teams,
+                                  poolTeam=poolTeam,
+                                  username=getUserInfo(), permission=getUserPermission(),
+                                  userTeamID=getUserTeamID())
+
+   return redirect(url_for("index")), 413
 
 @app.route("/admin", methods = ['GET', 'POST'])
 def getAdminCommand():
-    db.connect()
-    try:
-        teamNameModify = request.values["teamModify"]
-        updatePoolTeams.updateTeams()
-        return redirect(url_for('modifyTeam', team=teamNameModify))
-    except KeyError:
-        pass
+    if request.method == 'POST':
+        db.connect()
+        try:
+            teamNameModify = request.values["teamModify"]
+            return redirect(url_for('modifyTeam', team=teamNameModify))
+        except KeyError:
+            pass
 
-    try:
-        teamNameDelete = request.values["teamRemoval"]
-        db.deletePoolTeam(teamNameDelete)
-        updatePoolTeams.updateTeams();
-        return redirect(url_for('admin'))
-    except KeyError:
-        pass
+        try:
+            teamNameDelete = request.values["teamRemoval"]
+            db.deletePoolTeam(teamNameDelete)
+            updatePoolTeams.updateTeams();
+            flash("Team Removed!", category="success")
+            return redirect(url_for('admin'))
+        except KeyError:
+            pass
 
-    try:
-        usernameModify = request.values["userModify"]
-        return redirect(url_for('modifyUser', username=usernameModify))
-    except KeyError:
-        pass
+        try:
+            usernameModify = request.values["userModify"]
+            return redirect(url_for('modifyUser', username=usernameModify))
+        except KeyError:
+            pass
 
-    try:
-        usernameDelete = request.values["userRemoval"]
-        db.deleteUser(usernameDelete)
-        db.removeUserPoolTeam(usernameDelete)
-        updatePoolTeams.updateTeams();
-        return redirect(url_for('admin'))
-    except KeyError:
-        pass
+        try:
+            usernameDelete = request.values["userRemoval"]
+            db.deleteUser(usernameDelete)
+            db.removeUserPoolTeam(usernameDelete)
+            updatePoolTeams.updateTeams();
+            flash("User Removed!", category="success")
+            return redirect(url_for('admin'))
+        except KeyError:
+            pass
 
-# Route for handling the login page logic
-# @app.route('/login', methods=['GET', 'POST'])
-# def login():
-#     error = None
-#     if request.method == 'POST':
-#         if request.form['username'] != 'admin' or request.form['password'] != 'admin':
-#             error = 'Invalid Credentials. Please try again.'
-#         else:
-#             return redirect(url_for('index'))
-#     return render_template('login.html', error=error)
-
-# @app.route('/background_process')
-# def background_process():
-#     try:
-#         team = request.args.get('teamSelection', 0, type=str)
-#         return jsonify(teamName=team.teamName, username=team.userName)
-#     except Exception as e:
-#         return str(e)
+    return redirect(url_for('admin'))

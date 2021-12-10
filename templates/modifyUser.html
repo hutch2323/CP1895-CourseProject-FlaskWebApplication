@@ -5,7 +5,7 @@
     <div id="heading" class="mt-4 p-4 bg-dark text-white">
       <h1 class="text-center">Modify User</h1>
     </div>
-    <form class="p-3" method="POST">
+    <form class="p-3" method="POST" enctype="multipart/form-data">
       <div class="form-group pb-3">
         <label for="userName">Username</label>
         <input
@@ -62,6 +62,18 @@
           {% endif %}
         />
       </div>
+      {% if permission != "admin" %}
+        <div id="currentPasswordContainer" class="form-group pb-3">
+        <label for="password1">Password</label>
+        <input
+          type="password"
+          class="form-control"
+          id="currentPassword"
+          name="currentPassword"
+          value=""
+        />
+      </div>
+      {% endif %}
       <div class="form-group pb-3" style="margin: auto">
         <input class="form-check-input" type="checkbox" value="" id="updatePassword" name="updatePassword">
         <label class="form-check-label" for="updatePassword">
@@ -69,7 +81,7 @@
         </label>
       </div>
       <div id="password1Container" class="form-group pb-3">
-        <label for="password1">Password</label>
+        <label for="password1">New Password</label>
         <input
           type="password"
           class="form-control"
@@ -79,7 +91,7 @@
         />
       </div>
       <div id="password2Container" class="form-group pb-3">
-        <label for="password2">Password (Confirm)</label>
+        <label for="password2">New Password (Confirm)</label>
         <input
           type="password"
           class="form-control"
@@ -91,17 +103,15 @@
       {% if permission == "admin" %}
         <div class="form-group pb-3">
           <label for="permission">Permission</label>
-          <input
-            type="text"
-            class="form-control"
-            id="permission"
-            name="permission"
-            {% if 'permission' in form %}
-              value="{{form['permission']}}"
-            {% else %}
-              value="{{userToModify.permission}}"
-            {% endif %}
-            />
+          <select class="form-select" id="permission" name="permission" onclick="" style="display:inline-block">
+              {% if userToModify.permission == "admin" %}
+                <option value="none">None</option>
+                <option value="admin" selected>Admin</option>
+              {% else %}
+                <option value="none" selected>None</option>
+                <option value="admin">Admin</option>
+              {% endif %}
+          </select>
         </div>
       {% endif %}
       <br />

@@ -14,13 +14,18 @@ $(document).ready( () => {
         }
 
         // validate username
+        const usernamePattern = /\b[A-Za-z0-9]{6,25}\b/;
         const username =  $("#username").val().trim();
 		if (username == "") {
             // $("#teamName").next().text("Team logo is required.");
             alerts[alerts.length] = "Username is required!";
             isValid = false;
-        } else if (username.length < 4) {
-            alerts[alerts.length] = "Username must be greater than 4 characters";
+        } else if ((username.length < 4) || (username.length > 25)) {
+            alerts[alerts.length] = "Username must be between 4 and 25 characters";
+            isValid = false;
+        } else if ( !usernamePattern.test(username) ) {
+            // $("#email").next().text("Must be a valid email address.");
+            alerts[alerts.length] = "Username must only contain alphanumeric characters [A-Z, a-z, or 0-9]."
             isValid = false;
         }
         $("#username").val(username);
@@ -36,10 +41,10 @@ $(document).ready( () => {
             // $("#email").next().text("Must be a valid email address.");
             alerts[alerts.length] = "Must be a valid email address."
             isValid = false;
+        } else if ((email.length <= 5) || (email.length > 50)) {
+            alerts[alerts.length] = "Email address must be between 5 and 50 characters.";
+            isValid = false;
         }
-        // else {
-        //     $("#email").next().text("*");
-        // }
         $("#email").val(email);
 
 		// validate the first name
@@ -48,28 +53,22 @@ $(document).ready( () => {
             // $("#teamName").next().text("Team Name field is required.");
             alerts[alerts.length] = "First Name field is required!";
             isValid = false;
-		} else if (firstName <= 1) {
-            alerts[alerts.length] = "First name must be greater than 1 character.";
+		} else if ((firstName.length <= 1) || (firstName.length > 30)){
+            alerts[alerts.length] = "First name must be between 1 and 30 characters.";
             isValid = false;
         }
-        // else {
-		// 	// $("#teamName").next().text("*");
-		// }
         $("#firstName").val(firstName);
 
-        // validate the teamName
+        // validate the last name
         const lastName = $("#lastName").val().trim();
 		if (lastName == "") {
             // $("#teamName").next().text("Team Name field is required.");
             alerts[alerts.length] = "Last Name field is required!";
             isValid = false;
-		} else if (lastName <= 1) {
-            alerts[alerts.length] = "Last name must be greater than 1 character.";
+		} else if ((lastName.length <= 1) || (lastName.length > 30)){
+            alerts[alerts.length] = "Last name must be between 1 and 30 characters.";
             isValid = false;
         }
-        // else {
-		// 	// $("#teamName").next().text("*");
-		// }
         $("#lastName").val(lastName);
 
         // validate the teamName
@@ -78,8 +77,8 @@ $(document).ready( () => {
             // $("#teamName").next().text("Team Name field is required.");
             alerts[alerts.length] = "Password field is required!";
             isValid = false;
-		} else if (password1 <= 7) {
-            alerts[alerts.length] = "Password must be at least than 7 characters.";
+		} else if ((password1 <= 7) || (password1 > 30)){
+            alerts[alerts.length] = "Password must be be between 7 and 30 characters.";
             isValid = false;
         } else if (password1 != $("#password2").val().trim()){
             alerts[alerts.length] = "Passswords don't match.";
@@ -137,6 +136,7 @@ $(document).ready( () => {
                           </div>
                     </div>`);
             }
+            window.scrollTo(0, 335);
         }
             // if ($("#alert").length > 0){
             //     let errorString = ""

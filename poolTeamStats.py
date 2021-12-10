@@ -16,7 +16,7 @@ def updateTeamStats():
         teamStats = db.getTeamStats(team.teamID)
 
         if len(teamStats) == 0:
-            teamStats = [team.teamID, points, points, 0, 0]
+            teamStats = [team.teamID, points, pointsYesterday, 0, 0]
             db.setTeamStats(teamStats)
         else:
             teamStats[2] = teamStats[1]

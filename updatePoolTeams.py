@@ -42,7 +42,7 @@ def updateTeams():
     return
 
 def main():
-    caclulateStandings()
+    updateTeams()
 
 if __name__ == "__main__":
     main()

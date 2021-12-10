@@ -10,7 +10,20 @@
                 <tr class="table-dark"><th scope="col">Rank</th><th scope="col">Team Name</th><th scope="col">Points</th><th scope="col">Point Difference</th><th scope="col">Rank Difference</th></tr>
                 {% for team in teamStandings %}
                     <tr><td>{{team[4]}}</td><td><a href="{{ url_for('teamStats', teamID=team[0]) }}">{{team[1]}}</a></td><td>
-                        {{team[2]}}</td><td>{{team[2]-team[3]}}</td><td>{{team[4]-team[5]}}</td></tr>
+                        {{team[2]}}</td>
+                        {% if team[2]-team[3] > 0 %}
+                            <td>{{team[2]-team[3]}}</td>
+                        {% else %}
+                            <td>&#9472</td>
+                        {% endif %}
+                        {% if team[5]-team[4] > 0 %}
+                            <td class="text-success">&#9650 {{team[5]-team[4]}}</td>
+                        {% elif team[5]-team[4] < 0 %}
+                            <td class="text-danger">&#9660 {{(team[5]-team[4])|abs}}</td>
+                        {% else %}
+                            <td>&#9472</td>
+                        {% endif %}
+                    </tr>
                 {% endfor %}
             </table>
         </div>

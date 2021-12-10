@@ -2,62 +2,89 @@
 {% block title %}Admin{% endblock %}
 {% block content%}
     <div data-role="page" id="welcome" data-url="{{ url_for('admin') }}"></div>
-    <h2>Administrative Options</h2>
-    <h3><a href="" id="poolTeamModifier">Modify Pool Team</a></h3>
-        <form method="POST" action="" enctype="multipart/form-data" id="modifyPoolTeams" style="display: none">
-            <label for="teamModify">Team Name:</label>
-            <select id="teamModify" name="teamModify" onclick="">
-                {% for team in poolTeams %}
-                    <option value="{{team.teamName}}">{{team.teamName}}</option>
-                {% endfor %}
-            </select>
-            <button type="submit" id="modifyTeam" class='btn btn-default'>Modify</button>
-        </form>
-    <h3><a href="" id="poolTeamRemove">Remove Team from Pool</a></h3>
-        <form method="POST" action="" enctype="multipart/form-data" id="removePoolTeams" style="display: none">
-            <label for="teamRemoval">Team Name:</label>
-            <select id="teamRemoval" name="teamRemoval" onclick="">
-                {% for team in poolTeams %}
-                    <option value="{{team.teamName}}">{{team.teamName}}</option>
-                {% endfor %}
-            </select>
-            <button type="submit" id="removeTeam" class='btn btn-default'>Delete</button>
-        </form>
-    <h3><a href="" id="userModifier">Modify User</a></h3>
-        <form method="POST" action="" enctype="multipart/form-data" id="modifyUsers" style="display: none">
-            <label for="userModify">Team Name:</label>
-            <select id="userModify" name="userModify" onclick="">
-                {% for user in users %}
-                    <option value="{{user.username}}">{{user.username}}</option>
-                {% endfor %}
-            </select>
-            <button type="submit" id="modifyUser" class='btn btn-default'>Modify</button>
-        </form>
-    <h3><a href="" id="userRemover">Remove User from website</a></h3>
-        <form method="POST" action="" enctype="multipart/form-data" id="removeUsers" style="display: none">
-            <label for="userRemoval">Team Name:</label>
-            <select id="userRemoval" name="userRemoval" onclick="">
-                {% for user in users %}
-                    <option value="{{user.username}}">{{user.username}}</option>
-                {% endfor %}
-            </select>
-            <button type="submit" id="removeUser" class='btn btn-default'>Delete</button>
-        </form>
+    <div id="heading" class="mt-4 p-4 bg-dark text-white">
+      <h1 style="text-align:center">Admin Options</h1>
+    </div>
+
+    <ul class="list-group list-group-flush p-3">
+        <li id="poolTeamModifierList" class="list-group-item">
+            <div>
+                <h3><a class="text-dark" href="" style="text-decoration: none" id="poolTeamModifier">Modify Pool Team</a></h3>
+                <form class="row g-3 align-items-center" method="POST" action="" enctype="multipart/form-data" id="modifyPoolTeams">
+                    <div class="col-sm-6">
+                        <label class="pe-3" for="teamModify" style="display:inline-block">Team Name:</label>
+                        <select class="" id="teamModify" name="teamModify" onclick="" style="display:inline-block">
+                        {% for team in poolTeams %}
+                            <option value="{{team.teamName}}">{{team.teamName}}</option>
+                        {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-sm align-text-bottom">
+                        <button type="submit" id="modifyTeam" class='btn btn-primary' style="display:inline-block">Modify</button>
+                    </div>
+                </form>
+            </div>
+        </li>
+        <li id="poolTeamRemoveList" class="list-group-item">
+            <div>
+                <h3><a class="text-dark" href="" style="text-decoration: none" id="poolTeamRemove">Remove Pool Team</a></h3>
+                <form class="row g-3 align-items-center" method="POST" action="" enctype="multipart/form-data" id="removePoolTeams">
+                    <div class="col-sm-6">
+                        <label class="pe-3" for="teamRemoval" style="display:inline-block">Team Name:</label>
+                        <select class="" id="teamRemoval" name="teamRemoval" onclick="" style="display:inline-block">
+                        {% for team in poolTeams %}
+                            <option value="{{team.teamName}}">{{team.teamName}}</option>
+                        {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-sm align-text-bottom">
+                        <button type="submit" id="removeTeam" class='btn btn-primary' style="display:inline-block">Remove</button>
+                    </div>
+                </form>
+            </div>
+        </li>
+        <li id="userModifierList" class="list-group-item">
+            <div>
+                <h3><a class="text-dark" href="" style="text-decoration: none" id="userModifier">Modify User</a></h3>
+                <form class="row g-3 align-items-center" method="POST" action="" enctype="multipart/form-data" id="modifyUsers">
+                    <div class="col-sm-6">
+                        <label class="pe-3" for="userModify" style="display:inline-block">Username:</label>
+                            <select id="userModify" class="" name="userModify" onclick="" style="display:inline-block">
+                                {% for user in users %}
+                                    <option value="{{user.username}}">{{user.username}}</option>
+                                {% endfor %}
+                            </select>
+                    </div>
+                    <div class="col-sm align-text-bottom">
+                        <button type="submit" id="modifyUser" class='btn btn-primary' style="display:inline-block">Modify</button>
+                    </div>
+                </form>
+            </div>
+        </li>
+        <li id="userRemoverList" class="list-group-item">
+            <div>
+                <h3><a class="text-dark" href="" style="text-decoration: none" id="userRemover">Remove User</a></h3>
+                <form class="row g-3 align-items-center" method="POST" action="" enctype="multipart/form-data" id="removeUsers">
+                    <div class="col-sm-6">
+                        <label class="pe-3" for="userRemoval" style="display:inline-block">Username:</label>
+                            <select id="userRemoval" class="" name="userRemoval" onclick="" style="display:inline-block">
+                                {% for user in users %}
+                                    <option value="{{user.username}}">{{user.username}}</option>
+                                {% endfor %}
+                            </select>
+                    </div>
+                    <div class="col-sm align-text-bottom">
+                        <button type="submit" id="removeUser" class='btn btn-primary' style="display:inline-block">Remove</button>
+                    </div>
+                </form>
+            </div>
+        </li>
+    </ul>
+
+
     <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.6.0-min.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/admin.js') }}"></script>
     <script type=text/javascript>
-        $(function() {
-          $("h3").click( evt => {
-              evt.preventDefault();
-              const h3 = evt.currentTarget;
-              if ($(h3).next().css("display") == "block") {
-                  $(h3).next().css("display", "none");
-              } else {
-                  $("h3").each( (index, h3) => {
-                    $(h3).next().css("display", "none");
-                  });
-                  $(h3).next().css("display", "block");
-              }
-          })
-        });
+
     </script>
 {% endblock %}
