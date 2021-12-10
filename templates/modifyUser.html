@@ -1,9 +1,12 @@
 {% extends "base.html" %}
 {% block title %}Modify User{% endblock %}
 {% block content %}
-    <form method="POST">
-      <h3 align="center">Modify User</h3>
-      <div class="form-group">
+
+    <div id="heading" class="mt-4 p-4 bg-dark text-white">
+      <h1 class="text-center">Modify User</h1>
+    </div>
+    <form class="p-3" method="POST">
+      <div class="form-group pb-3">
         <label for="userName">Username</label>
         <input
           type="text"
@@ -17,7 +20,7 @@
           {% endif %}
         />
       </div>
-      <div class="form-group">
+      <div class="form-group pb-3">
         <label for="email">Email Address</label>
         <input
           type="email"
@@ -31,7 +34,7 @@
           {% endif %}
         />
       </div>
-      <div class="form-group">
+      <div class="form-group pb-3">
         <label for="firstName">First Name</label>
         <input
           type="text"
@@ -45,7 +48,7 @@
           {% endif %}
         />
       </div>
-      <div class="form-group">
+      <div class="form-group pb-3">
         <label for="lastName">Last Name</label>
         <input
           type="text"
@@ -59,16 +62,13 @@
           {% endif %}
         />
       </div>
-      <div class="form-group">
-        <label for="updatePassword">Update Password</label>
-        <input
-          type="checkbox"
-          class="form-control"
-          id="updatePassword"
-          name="updatePassword"
-        />
+      <div class="form-group pb-3" style="margin: auto">
+        <input class="form-check-input" type="checkbox" value="" id="updatePassword" name="updatePassword">
+        <label class="form-check-label" for="updatePassword">
+          Update Password
+        </label>
       </div>
-      <div id="password1Container" class="form-group">
+      <div id="password1Container" class="form-group pb-3">
         <label for="password1">Password</label>
         <input
           type="password"
@@ -78,7 +78,7 @@
           value=""
         />
       </div>
-      <div id="password2Container" class="form-group">
+      <div id="password2Container" class="form-group pb-3">
         <label for="password2">Password (Confirm)</label>
         <input
           type="password"
@@ -89,7 +89,7 @@
         />
       </div>
       {% if permission == "admin" %}
-        <div class="form-group">
+        <div class="form-group pb-3">
           <label for="permission">Permission</label>
           <input
             type="text"
@@ -105,7 +105,7 @@
         </div>
       {% endif %}
       <br />
-      <button id="submit" type="submit" class="btn btn-primary">Submit</button>
+      <div class="form-group pb-3 text-center"><button id="submit" type="submit" class="btn btn-primary">Submit</button></div>
     </form>
     <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.6.0-min.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/modifyUser.js') }}"></script>

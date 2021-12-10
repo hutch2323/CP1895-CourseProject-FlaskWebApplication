@@ -5,17 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link
       rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.2/dist/css/bootstrap.min.css" rel="stylesheet">
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
     <link
       rel="stylesheet"
       href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
       crossorigin="anonymous"/>
+      <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/styles.css') }}">
 
     <title>{% block title %}Home{% endblock %}</title>
   </head>
   <body>
-
-    <nav class="navbar navbar-expand-sm p-3 mb-2 bg-dark text-white">
+    <nav class="navbar navbar-expand-sm p-3 bg-dark text-white">
       <div class="container-fluid">
         <!-- Links -->
         <ul class="navbar-nav w-100">
@@ -41,7 +41,7 @@
             {% else %}
                 {% if userTeamID is none %}
                     <li class="nav-item">
-                        <a class="nav-link text-white" href="{{ url_for('players') }}">Select Players</a>
+                        <a class="nav-link text-white" href="{{ url_for('players') }}">Create Team</a>
                     </li>
                 {% endif %}
                 {% if permission == "admin" %}
@@ -49,70 +49,9 @@
                         <a class="nav-link text-white" href="{{ url_for('admin') }}">Admin</a>
                     </li>
                 {% endif %}
-<!--                <li class="nav-item">-->
-<!--                    <a class="nav-link text-white" href="{{ url_for('logout') }}">Logout</a>-->
-<!--                </li>-->
-
-<!--                <li class="nav-item">-->
-<!--                    <div id="userOptions" display="block" style="float: right; padding-right: 10px">-->
-<!--                        <li class="nav-item">-->
-<!--                            <a class="nav-link" id="username" href="{{ url_for('modifyUser', username=username) }}">User: {{ username }}</a>-->
-<!--                        </li>-->
-<!--                        <li class="nav-item">-->
-<!--                            <a id="editProfile" class="nav-link" style="display: none" href="{{ url_for('modifyUser', username=username) }}">Edit Profile</a>-->
-<!--                        </li>-->
-<!--                        {% if userTeamID is not none %}-->
-<!--                            <li class="nav-item">-->
-<!--                                <a id="viewTeam" class="nav-link" style="display: none" href="{{ url_for('teamStats', teamID=userTeamID) }}">View Team</a>-->
-<!--                            </li>-->
-<!--                        {% endif %}-->
-<!--                    </div>-->
-<!--                    <div class="dropdown">-->
-<!--                      <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">-->
-<!--                        {{ username }}-->
-<!--                      </a>-->
-
-<!--                      <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">-->
-<!--                        <li><a class="dropdown-item" href="{{ url_for('modifyUser', username=username) }}">Edit Profile</a></li>-->
-<!--                        <li><a class="dropdown-item" href="{{ url_for('teamStats', teamID=userTeamID) }}">View Team</a></li>-->
-<!--                      </ul>-->
-<!--                    </div>-->
-<!--                </li>-->
-<!--                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDarkDropdown" aria-controls="navbarNavDarkDropdown" aria-expanded="false" aria-label="Toggle navigation">-->
-<!--                        <span class="navbar-toggler-icon"></span>-->
-<!--                    </button>-->
-<!--                    <div class="collapse navbar-collapse float-end w-auto" id="navbarNavDarkDropdown">-->
-<!--                      <ul class="navbar-nav w-100 float-end">-->
-<!--                        <li class="nav-item dropdown">-->
-<!--                          <a class="nav-link dropdown-toggle text-white float-end" href="#" id="navbarDarkDropdownMenuLink" role="button" data-bs-toggle="dropdown" aria-expanded="false">-->
-<!--                              {{ username }}-->
-<!--                          </a>-->
-<!--                          <ul class="dropdown-menu dropdown-menu text-white bg-dark text-end" aria-labelledby="navbarDarkDropdownMenuLink">-->
-<!--                            <li class="nav-item w-auto float-end"><a class="dropdown-item text-white float-end" href="{{ url_for('modifyUser', username=username) }}">Edit Profile</a></li>-->
-<!--                              {% if userTeamID is not none %}-->
-<!--                                <li class="nav-item w-auto float-end"><a class="dropdown-item text-white float-end" href="{{ url_for('teamStats', teamID=userTeamID) }}">View Team</a></li>-->
-<!--                              {% endif %}-->
-<!--                          </ul>-->
-<!--                        </li>-->
-<!--                      </ul>-->
-<!--                    </div>-->
-<!--                <li class="nav-item dropdown me-auto text-end">-->
-<!--                  <a class="nav-link dropdown-toggle me-auto text-white text-end" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">-->
-<!--                    {{ username }}-->
-<!--                  </a>-->
-<!--                  <ul class="dropdown-menu me-auto" aria-labelledby="navbarDropdown">-->
-<!--                    <li><a class="dropdown-item" href="#">Action</a></li>-->
-<!--                    <li><a class="dropdown-item" href="#">Another action</a></li>-->
-<!--                    <li><hr class="dropdown-divider"></li>-->
-<!--                    <li><a class="dropdown-item" href="#">Something else here</a></li>-->
-<!--                  </ul-->
-<!--                </li>-->
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarSupportedContent"
-                    aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
             <div class="collapse navbar-collapse bg-dark" id="navbarContent">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
                 </ul>
                 <ul class="navbar-nav">
                     <li class="nav-item dropdown">
@@ -132,60 +71,36 @@
         </ul>
       </div>
     </nav>
-<!--    <ul>-->
-<!--        <a href="{{ url_for('index') }}">Home</a>-->
-<!--    <a href="{{ url_for('teamStandings') }}">View Standings</a>-->
-<!--    {% if username is none %}-->
-<!--        <a href="{{ url_for('login') }}">Login/Sign Up</a>-->
-<!--    {% else %}-->
-<!--        {% if userTeamID is none %}-->
-<!--            <a href="{{ url_for('players') }}">Select Players</a>-->
-<!--        {% endif %}-->
-<!--        {% if permission == "admin" %}-->
-<!--            <a href="{{ url_for('admin') }}">Admin</a>-->
-<!--        {% endif %}-->
-<!--        <a href="{{ url_for('logout') }}">Logout</a>-->
-<!--        <div id="userOptions" display="block" style="float: right; padding-right: 10px">-->
-<!--            <a id="username" href="{{ url_for('modifyUser', username=username) }}">User: {{ username }}</a>-->
-<!--            <a class="hide" style="display: none" href="{{ url_for('modifyUser', username=username) }}">Edit Profile</a>-->
-<!--            {% if userTeamID is not none %}-->
-<!--                <a class="hide" style="display: none" href="{{ url_for('teamStats', teamID=userTeamID) }}">View Team</a>-->
-<!--            {% endif %}-->
-<!--        </div>-->
-<!--    {% endif %}-->
-<!--    </ul>-->
-<!--    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">-->
-<!--      <button-->
-<!--        class="navbar-toggler"-->
-<!--        type="button"-->
-<!--        data-toggle="collapse"-->
-<!--        data-target="#navbar">-->
-<!--        <span class="navbar-toggler-icon"></span>-->
-<!--      </button>-->
-<!--      <div class="collapse navbar-collapse" id="navbar">-->
-<!--        <div class="navbar-nav">-->
+    <div class="text-center" style="background-image: url({{ url_for('static', filename='images/banner-bg.jpg')}}); background-position: center; background-repeat: no-repeat; background-size: cover;">
+        <img class="img-fluid" src="{{ url_for('static', filename='images/banner.png')}}">
+    </div>
 
-<!--        </div>-->
-<!--      </div>-->
-<!--    </nav>-->
+    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+        <symbol id="exclamation-triangle-fill" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+        </symbol>
+        <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
+            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+        </symbol>
+    </svg>
 
     <div id="alertBanner">
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             {% for category, message in messages %}
                 {% if category == 'error' %}
-                    <div id="alert" class="alert alert-danger alter-dismissable fade show" role="alert">
-                      {{ message }}
-                      <button type="button" class="close" data-dismiss="alert">
-                        <span aria-hidden="true">&times;</span>
-                      </button>
+                    <div id="alert" class="alert alert-danger d-flex align-items-center" role="alert">
+                          <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg>
+                          <div>
+                            {{ message }}
+                          </div>
                     </div>
-            {% else %}
-                    <div id="alert" class="alert alert-success alter-dismissable fade show" role="alert">
-                      {{ message }}
-                      <button type="button" class="close" data-dismiss="alert">
-                        <span aria-hidden="true">&times;</span>
-                      </button>
+                {% else %}
+                    <div id="alert" class="alert alert-success d-flex align-items-center" role="alert">
+                        <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Success:"><use xlink:href="#check-circle-fill"/></svg>
+                          <div>
+                            {{ message }}
+                          </div>
                     </div>
                 {% endif %}
             {% endfor %}

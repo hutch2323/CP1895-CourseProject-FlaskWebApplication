@@ -1,21 +1,28 @@
 {% extends "base.html" %}
 {% block title %}Team Stats{% endblock %}
 {% block content%}
-    <h1 style="line-height:75px;margin:auto;padding-left:75px"><img src="{{ url_for('static', filename='images/'+selectedTeam.teamLogo)}}" style="width:10%;vertical-align: middle"> {{ selectedTeam.teamName }}</h1>
-        <table style="text-align:center">
-            <tr><th>RND</th><th>Player</th><th>Team</th><th>Position</th><th>Games Played</th><th>Goals</th>
-            <th>Assists</th><th>Points</th></tr>
-            {% for player in playerStats %}
-                {% if player[4] != "G" %}
-                    <tr><td>{{player[0]}}</td><td>{{player[1] + " " + player[2]}}</td>
-                        <td>{{player[3]}}</td><td>{{player[4]}}</td><td>{{player[5]}}</td>
-                    <td>{{player[6]}}</td><td>{{player[7]}}</td><td>{{player[8]}}</td></tr>
-                {% endif %}
-            {% endfor %}
-        </table>
-         <br>
-            <table style="text-align:center">
-                <tr><th>RND</th><th>Player</th><th>Team</th><th>Position</th><th>Games Played</th><th>Wins</th>
+    <div class="justify-content-center aligns-items-center" style="max-width: 700px; text-align: center">
+        <div id="heading" class="mt-4 p-4 bg-dark text-white aligns-items-center justify-content-center w-100" style="text-align: center; justify-content: center; margin: auto">
+            <div class="aligns-items-center justify-content-center" style="display:inline-block; margin: auto">
+                <img class="mx-auto" src="{{ url_for('static', filename='images/'+selectedTeam.teamLogo)}}" style="max-height:75px; max-width:75px; vertical-align: middle">
+                <h1 style="text-align:center; vertical-align: middle; margin: auto; display:inline-block">{{ selectedTeam.teamName }}</h1>
+            </div>
+        </div>
+        <div class="pt-3">
+            <table id="playerStats" class="table table-striped w-100" style="text-align:center">
+                <tr class="table-dark"><th>RND</th><th>Player</th><th>Team</th><th>Position</th><th>Games Played</th><th>Goals</th>
+                <th>Assists</th><th>Points</th></tr>
+                {% for player in playerStats %}
+                    {% if player[4] != "G" %}
+                        <tr><td>{{player[0]}}</td><td>{{player[1] + " " + player[2]}}</td>
+                            <td>{{player[3]}}</td><td>{{player[4]}}</td><td>{{player[5]}}</td>
+                        <td>{{player[6]}}</td><td>{{player[7]}}</td><td>{{player[8]}}</td></tr>
+                    {% endif %}
+                {% endfor %}
+            </table>
+                <br>
+            <table id="goalieStats" class="table table-striped w-100" style="text-align:center">
+                <tr class="table-dark"><th>RND</th><th>Player</th><th>Team</th><th>Position</th><th>Games Played</th><th>Wins</th>
                 <th>Shutouts</th><th>Points</th></tr>
                 {% for player in playerStats %}
                     {% if player[4] == "G" %}
@@ -25,4 +32,6 @@
                     {% endif %}
                 {% endfor %}
             </table>
+        </div>
+    </div>
 {% endblock %}

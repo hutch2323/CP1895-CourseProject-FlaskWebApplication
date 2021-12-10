@@ -1,0 +1,123 @@
+@media (min-width: 405px) {
+    .navbar-expand-sm .navbar-collapse {
+        display: flex !important;
+        flex-basis: auto;
+    }
+}
+
+@media (min-width: 405px) {
+    .navbar-expand-sm .navbar-nav {
+        flex-direction: row;
+    }
+}
+
+@media (min-width: 405px) {
+    .navbar-expand-sm .navbar-nav .nav-link {
+        padding-right: 0.5rem;
+        padding-left: 0.5rem;
+    }
+}
+
+@media (min-width: 405px) {
+    .navbar-expand-sm .navbar-nav .dropdown-menu {
+        position: absolute;
+    }
+}
+
+.dropdown-menu{
+    min-width: auto;
+}
+
+ul.navbar-nav a:hover {
+    color: #ff0000 !important;
+}
+
+@media (max-width: 500px) {
+    .table {
+        font-size: 14px;
+    }
+}
+@media (max-width: 768px){
+    #playerStats {
+        font-size: 15px;
+    }
+    #goalieStats {
+        font-size: 15px;
+    }
+}
+
+@media (max-width: 546px){
+    #playerStats {
+        font-size: 13px;
+    }
+    #goalieStats {
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 500px){
+    #playerStats {
+        font-size: 12px;
+    }
+    #goalieStats {
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 470px){
+    #playerStats {
+        font-size: 11px;
+    }
+    #goalieStats {
+        font-size: 11px;
+    }
+}
+
+@media (max-width: 445px){
+    #playerStats {
+        font-size: 10px;
+    }
+    #goalieStats {
+        font-size: 10px;
+    }
+}
+
+@media (max-width: 3000px){
+    .container{
+        max-width: 720px;
+    }
+}
+
+/*@media (min-width: 400px){*/
+/*    #playerStats {*/
+/*        font-size: 12px;*/
+/*    }*/
+/*    #goalieStats {*/
+/*        font-size: 12px;*/
+/*    }*/
+/*}*/
+
+
+/*@media (min-width: 770px) {*/
+/*    #playerStats {*/
+/*        font-size: 16px;*/
+/*    }*/
+/*    #goalieStats {*/
+/*        font-size: 16px;*/
+/*    }*/
+/*}*/
+
+/*@media (max-width: 575px) {*/
+/*    #playerStats {*/
+/*        font-size: 14px;*/
+/*    }*/
+/*    #goalieStats {*/
+/*        font-size: 14px;*/
+/*    }*/
+/*}*/
+
+/*@media (max-width: 455px) {*/
+/*    .table {*/
+/*        font-size: 12px;*/
+/*    }*/
+/*}*/

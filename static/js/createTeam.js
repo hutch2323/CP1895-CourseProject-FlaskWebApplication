@@ -10,7 +10,7 @@ $(document).ready( () => {
         let alerts = [];
 
         if ($("#alert").length > 0){
-            $("#alert span").click();
+            $("#alertBanner").html("");
         }
 
         // // validate the file upload to ensure that a file is
@@ -47,7 +47,7 @@ $(document).ready( () => {
         // }
         // $("#email").val(email);
 
-        $(".block").each((index, block) => {
+        $(".col").each((index, block) => {
             if ($(block).find(":selected").text() == ""){
                 alerts[alerts.length] = $(block).attr("id") + " must have selection";
                 // $("#teamName").next().text($(block).attr("id") + " must have selection");
@@ -75,16 +75,17 @@ $(document).ready( () => {
             evt.preventDefault();
             let alertString = ""
             for (let alert of alerts) {
-                let stringHTML = `<div id="alert" class="alert alert-danger alter-dismissable fade show" role="alert">`;
-                stringHTML += alert;
-                stringHTML += `<button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span>
-                           </button></div>`;
-                $("#alertBanner").append(stringHTML);
+                $("#alertBanner").append(`<div id="alert" class="alert alert-danger d-flex align-items-center" role="alert">
+                          <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill"/></svg>
+                          <div>
+                            ${alert}
+                          </div>
+                    </div>`);
             }
         }
     });
 
-    $(".block").on("change", evt => {
+    $(".col").on("change", evt => {
         const block = evt.currentTarget;
         console.log($(block).find(":selected").text())
     })

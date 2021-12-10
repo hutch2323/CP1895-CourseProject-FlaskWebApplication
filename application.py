@@ -27,7 +27,7 @@ def updateStats():
 # update standings
 cron = BackgroundScheduler(daemon=True)
 cron.add_job(collectStats, 'cron', day_of_week='mon-sun', hour=6, minute=30, timezone=utc)
-# cron.add_job(collectStats, 'cron', day_of_week='mon-sun', hour=11, minute=49, timezone=utc)
+# cron.add_job(collectStats, 'cron', day_of_week='mon-sun', hour=12, minute=54, timezone=utc)
 cron.start()
 
 app = Flask(__name__)
@@ -125,8 +125,8 @@ def loginUser():
 @app.route("/logout")
 def logout():
     session.pop("username", None)
-    return render_template("logout.html", username=getUserInfo(), permission=getUserPermission(),
-                           userTeamID=getUserTeamID())
+    session.pop("permission", None)
+    return redirect(url_for('index'))
 
 @app.route("/signUp")
 def signUp():
@@ -161,7 +161,7 @@ def getSignupData():
                                userTeamID=getUserTeamID())
 
 # route that handles the display of player/team options for a user creating a new hockey pool team
-@app.route("/players")
+@app.route("/createTeam")
 def players():
     if "username" in session:
         if not userTeam():
@@ -180,7 +180,7 @@ def players():
 
 # this handles the page where a user can create a hockey pool team. It will retrieve the submitted information and add
 # it to the database
-@app.route("/players", methods = ['GET', 'POST'])
+@app.route("/createTeam", methods = ['GET', 'POST'])
 def getPoolTeamData():
     form = request.form
     uploaded_file = request.files["teamLogo"]
