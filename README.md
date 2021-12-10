@@ -2,7 +2,7 @@
 CP1895 Course Project  -Flask Web Application - Box Hockey Pool
 
 ## Description:
-This plugin was designed as the course project of CP1895: Advanced Python. This Python/Flask application will allow users to select a hockey team based off of "boxes" of options and allow them to see their team's stats as they compare to other user's teams. 
+This plugin was designed as the course project of CP1895: Advanced Python. This Python/Flask application will allow users to select a hockey team based off of "boxes" of options and allow them to see their team's stats as they compare to other user's teams. The project also makes use of the NHL API, as it is pinged once daily (using a cron job) to retrieve new player stats and update the team standings page.
 
 # Download & Installation
 ## Step 1:
